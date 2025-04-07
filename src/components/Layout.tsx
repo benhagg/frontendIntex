@@ -146,7 +146,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             }`}
                           >
                             <Menu.Item>
-                              {({}) => (
+                              {() => (
                                 <button
                                   onClick={handleLogout}
                                   className={`block px-4 py-2 text-sm w-full text-left ${

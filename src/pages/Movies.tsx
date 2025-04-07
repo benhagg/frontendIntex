@@ -24,7 +24,7 @@ const Movies: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [totalCount, setTotalCount] = useState<number>(0);
+  const [, setTotalCount] = useState<number>(0);
   const searchTimeoutRef = useRef<number | null>(null);
 
   const fetchMovies = async (reset = false) => {
@@ -140,7 +140,7 @@ const Movies: React.FC = () => {
               id="genre"
               value={selectedGenre}
               onChange={handleGenreChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">All Genres</option>
               {genres.map((genre) => (
@@ -173,7 +173,7 @@ const Movies: React.FC = () => {
                     }, 500); // 500ms debounce
                   }}
                   placeholder="Search movies..."
-                  className="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
                 <button
                   type="submit"

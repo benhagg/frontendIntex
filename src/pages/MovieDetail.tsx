@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { movieService, ratingService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
 
 interface Movie {
@@ -18,9 +18,13 @@ interface Movie {
 }
 
 interface Rating {
+  ratingId: number;
   userId: number;
   showId: string;
   rating: number;
+  review?: string;
+  userName?: string;
+  createdAt?: string;
 }
 
 interface RatingFormData {
@@ -37,6 +41,8 @@ const MovieDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [userRating, setUserRating] = useState<Rating | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [reviewsPerPage] = useState<number>(5);
   
   const {
     register,
@@ -57,6 +63,7 @@ const MovieDetail: React.FC = () => {
         setMovie(movieData);
         
         const ratingsData = await ratingService.getRatingsByMovie(id);
+        console.log("Fetched ratings data:", ratingsData); // Debug log
         setRatings(ratingsData);
         
         // Store ratings in the global store for average calculation
@@ -68,8 +75,8 @@ const MovieDetail: React.FC = () => {
           if (userRating) {
             setUserRating(userRating);
             setValue('score', userRating.rating);
-            // Note: The new MovieRating model doesn't have a comment field
-            setValue('comment', '');
+            // Set the review comment if it exists
+            setValue('comment', userRating.review || '');
           }
         }
         
@@ -91,23 +98,32 @@ const MovieDetail: React.FC = () => {
       return;
     }
     
-    if (!id) return;
+    if (!id || !movie) return;
     
     setIsSubmitting(true);
     try {
-      // Use the new API service
-      await ratingService.rateMovie(id, data.score);
+      console.log("Submitting review with comment:", data.comment); // Debug log
       
-      // Refresh ratings
-      const ratingsData = await ratingService.getRatingsByMovie(id);
-      setRatings(ratingsData);
+      // Use the new API service
+      await ratingService.rateMovie(movie.movieId, data.score, data.comment);
+      
+      // Refresh ratings - force a new fetch from the server
+      const ratingsData = await ratingService.getRatingsByMovie(movie.movieId);
+      console.log("Updated ratings after submission:", ratingsData); // Debug log
+      
+      // Ensure we're setting the state with the new data
+      setRatings([...ratingsData]);
       
       // Update the global store with the new ratings
-      window.movieRatings[id] = ratingsData;
+      if (id) {
+        window.movieRatings[id] = ratingsData;
+      }
       
       // Update movie to get new average rating
-      const movieData = await movieService.getMovie(id);
-      setMovie(movieData);
+      if (id) {
+        const movieData = await movieService.getMovie(id);
+        setMovie(movieData);
+      }
       
       // Find user's new rating
       if (user) {
@@ -116,6 +132,9 @@ const MovieDetail: React.FC = () => {
           setUserRating(newUserRating);
         }
       }
+      
+      // Clear the review form
+      reset({ score: data.score, comment: '' });
       
       toast.success(userRating ? 'Rating updated successfully!' : 'Rating submitted successfully!');
       setIsSubmitting(false);
@@ -127,24 +146,29 @@ const MovieDetail: React.FC = () => {
   };
 
   const handleDeleteRating = async () => {
-    if (!userRating || !user) return;
+    if (!userRating || !user || !movie) return;
     
     try {
       // Use the new API service
-      if (!id) return;
-      await ratingService.deleteRating(parseInt(user.id), id);
+      await ratingService.deleteRating(parseInt(user.id), movie.movieId);
       
       // Refresh ratings
-      if (!id) return;
-      const ratingsData = await ratingService.getRatingsByMovie(id);
-      setRatings(ratingsData);
+      const ratingsData = await ratingService.getRatingsByMovie(movie.movieId);
+      console.log("Updated ratings after deletion:", ratingsData); // Debug log
+      
+      // Ensure we're setting the state with the new data
+      setRatings([...ratingsData]);
       
       // Update the global store with the new ratings
-      window.movieRatings[id] = ratingsData;
+      if (id) {
+        window.movieRatings[id] = ratingsData;
+      }
       
       // Update movie to get new average rating
-      const movieData = await movieService.getMovie(id);
-      setMovie(movieData);
+      if (id) {
+        const movieData = await movieService.getMovie(id);
+        setMovie(movieData);
+      }
       
       setUserRating(null);
       reset({ score: 0, comment: '' });
@@ -223,6 +247,10 @@ const MovieDetail: React.FC = () => {
                   src={movie.imageUrl}
                   alt={movie.title}
                   className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    // If the image fails to load, replace with a placeholder
+                    e.currentTarget.src = '/images/movie-collage.png';
+                  }}
                 />
               ) : (
                 <div className="w-full h-96 flex items-center justify-center bg-gray-300 dark:bg-gray-600">
@@ -290,7 +318,7 @@ const MovieDetail: React.FC = () => {
                       id="comment"
                       rows={4}
                       {...register('comment')}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     ></textarea>
                   </div>
                   
@@ -327,24 +355,140 @@ const MovieDetail: React.FC = () => {
               {ratings.length === 0 ? (
                 <p className="text-gray-500 dark:text-gray-400">No reviews yet. Be the first to review!</p>
               ) : (
-                <div className="space-y-6">
-                  {ratings.map((rating) => (
-                    <div
-                      key={`${rating.userId}-${rating.showId}`}
-                      className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center">
-                          {renderRatingStars(rating.rating)}
+                <>
+                  <div className="space-y-6">
+                    {/* Calculate pagination */}
+                    {ratings
+                      .slice(
+                        (currentPage - 1) * reviewsPerPage,
+                        currentPage * reviewsPerPage
+                      )
+                      .map((rating) => (
+                        <div
+                          key={rating.ratingId}
+                          className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center">
+                              {renderRatingStars(rating.rating)}
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                {rating.userName || `User ID: ${rating.userId}`}
+                              </div>
+                              {rating.createdAt && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {new Date(rating.createdAt).toLocaleDateString()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {rating.review ? (
+                            <p className="text-gray-700 dark:text-gray-300 mt-2 border-t pt-2 border-gray-200 dark:border-gray-700">
+                              {rating.review}
+                            </p>
+                          ) : (
+                            <p className="text-gray-500 dark:text-gray-400 mt-2 italic border-t pt-2 border-gray-200 dark:border-gray-700">
+                              No written review provided.
+                            </p>
+                          )}
+                          
+                          {/* Delete button for user's own reviews or admin */}
+                          {user && (parseInt(user.id) === rating.userId || user.roles?.includes('Admin')) && (
+                            <div className="mt-2 text-right">
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await ratingService.deleteSingleRating(rating.ratingId);
+                                    
+                                    // Refresh ratings
+                                    const ratingsData = await ratingService.getRatingsByMovie(movie.movieId);
+                                    console.log("Updated ratings after single deletion:", ratingsData); // Debug log
+                                    setRatings([...ratingsData]);
+                                    
+                                    // Update the global store with the new ratings
+                                    if (id) {
+                                      window.movieRatings[id] = ratingsData;
+                                    }
+                                    
+                                    // Update movie to get new average rating
+                                    if (id) {
+                                      const movieData = await movieService.getMovie(id);
+                                      setMovie(movieData);
+                                    }
+                                    
+                                    toast.success('Review deleted successfully!');
+                                  } catch (error) {
+                                    console.error('Error deleting review:', error);
+                                    toast.error('Failed to delete review. Please try again later.');
+                                  }
+                                }}
+                                className="text-xs text-red-600 hover:text-red-800"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          User ID: {rating.userId}
-                        </span>
-                      </div>
-                      {/* Note: The new MovieRating model doesn't have a comment field */}
+                      ))}
+                  </div>
+                  
+                  {/* Pagination controls */}
+                  {ratings.length > reviewsPerPage && (
+                    <div className="flex justify-center mt-8">
+                      <nav className="flex items-center">
+                        <button
+                          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="px-3 py-1 rounded-md mr-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                        >
+                          Previous
+                        </button>
+                        <div className="flex space-x-1">
+                          {Array.from(
+                            { length: Math.ceil(ratings.length / reviewsPerPage) },
+                            (_, i) => (
+                              <button
+                                key={i + 1}
+                                onClick={() => setCurrentPage(i + 1)}
+                                className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                                  currentPage === i + 1
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                }`}
+                              >
+                                {i + 1}
+                              </button>
+                            )
+                          )}
+                        </div>
+                        <button
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, Math.ceil(ratings.length / reviewsPerPage))
+                            )
+                          }
+                          disabled={currentPage === Math.ceil(ratings.length / reviewsPerPage)}
+                          className="px-3 py-1 rounded-md ml-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                        >
+                          Next
+                        </button>
+                      </nav>
                     </div>
-                  ))}
-                </div>
+                  )}
+                  
+                  {/* Rating summary */}
+                  <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-2">Rating Summary</h3>
+                    <div className="flex items-center mb-2">
+                      <span className="font-medium mr-2">Average Rating:</span>
+                      {renderRatingStars(movie.averageRating)}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Based on {ratings.length} {ratings.length === 1 ? 'review' : 'reviews'}
+                    </p>
+                  </div>
+                </>
               )}
             </div>
           </div>
