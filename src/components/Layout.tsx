@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Cookies from "js-cookie";
+import "./layout.css";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -64,8 +65,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <Link to="/" className="text-white font-bold text-xl">
-                      Movie Ratings
+                    <Link to="/" className="logo">
+                      <img src="./images/logowithwords.png" alt="logo"></img>
                     </Link>
                   </div>
                   <div className="hidden md:block">
