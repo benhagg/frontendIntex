@@ -58,12 +58,21 @@ export const authService = {
     return { token, user };
   },
   
-  register: async (email: string, password: string, confirmPassword: string) => {
-    const response = await api.post('/auth/register', { 
-      email, 
-      password, 
-      confirmPassword 
-    });
+  register: async (registerData: {
+    email: string;
+    password: string;
+    confirmPassword: string;
+    fullName?: string;
+    phone?: string;
+    username?: string;
+    age?: string;
+    gender?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    services?: string[];
+  }) => {
+    const response = await api.post('/auth/register', registerData);
     return response.data;
   },
   
