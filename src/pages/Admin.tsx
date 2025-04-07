@@ -524,7 +524,7 @@ const Admin: React.FC = () => {
                       }
                       
                       // Render the pagination items
-                      return range.map((page, index) => {
+                      return range.map((page) => {
                         if (page === 'ellipsis1' || page === 'ellipsis2') {
                           return (
                             <span

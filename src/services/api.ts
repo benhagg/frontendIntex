@@ -361,16 +361,14 @@ export const ratingService = {
   },
   
   rateMovie: async (showId: string, rating: number, review?: string) => {
-    // Sanitize the review text to prevent XSS attacks
-    const sanitizedReview = sanitizeInput(review);
+    // Don't sanitize the review on the client side, let the backend handle it
     console.log("Original review:", review); // Add logging to debug
-    console.log("Sanitized review:", sanitizedReview); // Add logging to debug
     
     // Make sure we're sending the correct property name (ShowId) expected by the backend
     const response = await api.post('/movierating', { 
       showId: showId, 
       rating: rating,
-      review: sanitizedReview 
+      review: review 
     });
     return response.data;
   },
