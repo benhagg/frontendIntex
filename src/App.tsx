@@ -1,17 +1,20 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Movies from './pages/Movies';
-import MovieDetail from './pages/MovieDetail';
-import Privacy from './pages/Privacy';
-import Admin from './pages/Admin';
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Movies from "./pages/Movies";
+import MovieDetail from "./pages/MovieDetail";
+import Privacy from "./pages/Privacy";
+import Admin from "./pages/Admin";
+import CookieConsent from "react-cookie-consent";
+
+
 
 function App() {
   return (
@@ -25,14 +28,14 @@ function App() {
           <Route path="/movies" element={<Movies />} />
           <Route path="/movies/:id" element={<MovieDetail />} />
           <Route path="/privacy" element={<Privacy />} />
-          
+
           {/* Protected routes */}
           <Route element={<ProtectedRoute requireAdmin={true} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>
       </Router>
-      
+
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -45,6 +48,22 @@ function App() {
         pauseOnHover
         theme="colored"
       />
+      <CookieConsent
+        location="bottom"
+        buttonText="Accept All"
+        declineButtonText="Decline"
+        enableDeclineButton
+        cookieName="cineNicheConsent"
+        style={{ background: "#2B373B" }}
+        buttonStyle={{ color: "#4e503b", fontSize: "13px" }}
+        declineButtonStyle={{ fontSize: "13px" }}
+      >
+        We use cookies to enhance your experience, analyze traffic, and
+        personalize content.{" "}
+        <a href="/privacy" className="underline text-blue-300">
+          Learn more
+        </a>
+      </CookieConsent>
     </AuthProvider>
   );
 }
