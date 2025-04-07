@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-import Layout from '../components/Layout';
+// Updated Register component with white input backgrounds
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import Layout from "../components/Layout";
 
 interface RegisterFormData {
+  fullName: string;
+  phone: string;
   email: string;
+  username: string;
   password: string;
   confirmPassword: string;
+  age: string;
+  gender: string;
+  city: string;
+  state: string;
+  zip: string;
+  services: string[];
 }
 
 const Register: React.FC = () => {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -23,125 +33,165 @@ const Register: React.FC = () => {
     watch,
   } = useForm<RegisterFormData>();
 
-  const password = watch('password', '');
+  const password = watch("password", "");
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
       await registerUser(data.email, data.password, data.confirmPassword);
-      toast.success('Registration successful! Please log in.');
-      navigate('/login');
+      toast.success("Registration successful! Please log in.");
+      navigate("/login");
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 
-        (error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : 'Registration failed. Please try again.');
+      const errorMessage =
+        error.response?.data?.message ||
+        (error.response?.data?.errors
+          ? Object.values(error.response.data.errors).flat().join(", ")
+          : "Registration failed. Please try again.");
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const streamingServices = [
+    "Netflix",
+    "Disney+",
+    "Amazon Prime",
+    "Paramount+",
+    "Max",
+    "Hulu",
+    "Apple TV+",
+    "Peacock",
+  ];
+
   return (
     <Layout>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">
-            Create a new account
-          </h2>
-        </div>
-
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6">
-                Email address
-              </label>
-              <div className="mt-2">
+      <div className="max-w-6xl mx-auto px-6 py-10 bg-gray-200 rounded-lg">
+        <h2 className="text-4xl font-bold mb-8 text-center">Create Account</h2>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <div>
+            <label>Full Name:</label>
+            <input
+              {...register("fullName")}
+              className="w-full border rounded p-2 bg-white"
+            />
+            <label>Phone Number:</label>
+            <input
+              {...register("phone")}
+              className="w-full border rounded p-2 bg-white"
+            />
+            <label>Email:</label>
+            <input
+              {...register("email")}
+              className="w-full border rounded p-2 bg-white"
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label>Age:</label>
                 <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address',
-                    },
-                  })}
-                  className="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  {...register("age")}
+                  className="w-full border rounded p-2 bg-white"
                 />
-                {errors.email && (
-                  <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
-                )}
+              </div>
+              <div>
+                <label>Gender:</label>
+                <input
+                  {...register("gender")}
+                  className="w-full border rounded p-2 bg-white"
+                />
               </div>
             </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium leading-6">
-                Password
-              </label>
-              <div className="mt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label>City:</label>
                 <input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 10,
-                      message: 'Password must be at least 10 characters',
-                    },
-                    pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,
-                      message: 'Password must include at least one uppercase letter, one lowercase letter, one number, and one special character',
-                    },
-                  })}
-                  className="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  {...register("city")}
+                  className="w-full border rounded p-2 bg-white"
                 />
-                {errors.password && (
-                  <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-                )}
+              </div>
+              <div>
+                <label>State:</label>
+                <input
+                  {...register("state")}
+                  className="w-full border rounded p-2 bg-white"
+                />
               </div>
             </div>
+            <label>Zip Code:</label>
+            <input
+              {...register("zip")}
+              className="w-full border rounded p-2 bg-white"
+            />
+          </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium leading-6">
-                Confirm Password
-              </label>
-              <div className="mt-2">
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  {...register('confirmPassword', {
-                    required: 'Please confirm your password',
-                    validate: value => value === password || 'Passwords do not match',
-                  })}
-                  className="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-2 text-sm text-red-600">{errors.confirmPassword.message}</p>
-                )}
-              </div>
+          <div>
+            <label>Username:</label>
+            <input
+              {...register("username")}
+              className="w-full border rounded p-2 bg-white"
+            />
+            <label>Password:</label>
+            <input
+              type="password"
+              {...register("password")}
+              className="w-full border rounded p-2 bg-white"
+            />
+            <label>Confirm Password:</label>
+            <input
+              type="password"
+              {...register("confirmPassword", {
+                validate: (value) =>
+                  value === password || "Passwords do not match",
+              })}
+              className="w-full border rounded p-2 bg-white"
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-600">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+
+            <label className="mt-4 block">
+              What streaming services do you already have?
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {streamingServices.map((service) => (
+                <label key={service} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    value={service}
+                    {...register("services")}
+                    className="mr-2"
+                  />
+                  {service}
+                </label>
+              ))}
             </div>
+          </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50"
-              >
-                {isLoading ? 'Creating account...' : 'Create account'}
-              </button>
-            </div>
-          </form>
+          <div className="col-span-1 md:col-span-2 flex justify-end">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800"
+            >
+              {isLoading ? "Creating Account..." : "Create Account"}
+            </button>
+          </div>
+        </form>
 
-          <p className="mt-10 text-center text-sm">
-            Already have an account?{' '}
-            <Link to="/login" className="font-semibold leading-6 text-blue-600 hover:text-blue-500">
-              Sign in
-            </Link>
-          </p>
-        </div>
+        <p className="mt-10 text-center text-sm">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold leading-6 text-blue-600 hover:text-blue-500"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </Layout>
   );
