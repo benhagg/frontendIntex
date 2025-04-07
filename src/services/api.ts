@@ -134,7 +134,7 @@ export const movieService = {
           title: movie.title,
           genre: getMainGenre(movie),
           description: movie.description,
-          imageUrl: `/images/${movie.showId}.jpg`, // Assuming image naming convention
+          imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available
           year: movie.releaseYear,
           director: movie.director,
           averageRating: avgRating
@@ -191,7 +191,7 @@ export const movieService = {
         title: movie.title,
         genre: getMainGenre(movie),
         description: movie.description,
-        imageUrl: `/images/${movie.showId}.jpg`,
+        imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
         director: movie.director,
         averageRating: avgRating
@@ -205,7 +205,7 @@ export const movieService = {
         title: movie.title,
         genre: getMainGenre(movie),
         description: movie.description,
-        imageUrl: `/images/${movie.showId}.jpg`,
+        imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
         director: movie.director,
         averageRating: 0
@@ -320,6 +320,8 @@ interface MovieRatingItem {
   userId: number;
   showId: string;
   rating: number;
+  review?: string;
+  userName?: string;
 }
 
 // Extend the Window interface to include our global store
@@ -334,16 +336,7 @@ if (!window.movieRatings) {
   window.movieRatings = {};
 }
 
-// Helper function to get the average rating for a movie
-const getAverageRating = (showId: string): number => {
-  // Calculate average from the ratings we have in memory
-  // This is a client-side calculation that will be updated when ratings are fetched
-  const ratings = window.movieRatings[showId] || [];
-  if (ratings.length === 0) return 0;
-  
-  const sum = ratings.reduce((total: number, rating: MovieRatingItem) => total + rating.rating, 0);
-  return sum / ratings.length;
-};
+// No need for a separate helper function as we calculate the average rating inline
 
 // Rating services (using the new MovieRating table)
 export const ratingService = {
@@ -357,13 +350,24 @@ export const ratingService = {
     return response.data;
   },
   
-  rateMovie: async (showId: string, rating: number) => {
-    const response = await api.post('/movierating', { showId, rating });
+  rateMovie: async (showId: string, rating: number, review?: string) => {
+    // Make sure we're sending the correct property name (ShowId) expected by the backend
+    console.log("Sending review:", review); // Add logging to debug
+    const response = await api.post('/movierating', { 
+      showId: showId, 
+      rating: rating,
+      review: review 
+    });
     return response.data;
   },
   
   deleteRating: async (userId: number, showId: string) => {
     const response = await api.delete(`/movierating/${userId}/${showId}`);
+    return response.data;
+  },
+  
+  deleteSingleRating: async (ratingId: number) => {
+    const response = await api.delete(`/movierating/single/${ratingId}`);
     return response.data;
   }
 };
