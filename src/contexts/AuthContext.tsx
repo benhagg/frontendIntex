@@ -7,12 +7,27 @@ interface User {
   roles: string[];
 }
 
+interface RegisterData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  fullName?: string;
+  phone?: string;
+  username?: string;
+  age?: string;
+  gender?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  services?: string[];
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, confirmPassword: string) => Promise<void>;
+  register: (registerData: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
@@ -63,9 +78,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (email: string, password: string, confirmPassword: string) => {
+  const register = async (registerData: RegisterData) => {
     try {
-      await authService.register(email, password, confirmPassword);
+      await authService.register(registerData);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

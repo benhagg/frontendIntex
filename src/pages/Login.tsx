@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 interface LoginFormData {
   email: string;
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const {
     register,
@@ -75,18 +77,29 @@ const Login: React.FC = () => {
                   Password
                 </label>
               </div>
-              <div className="mt-2">
+              <div className="mt-2 relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   {...register('password', {
                     required: 'Password is required',
                   })}
-                  className="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="block w-full rounded-md border-0 py-1.5 pr-10 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="text-gray-500 dark:text-gray-400" />
+                  ) : (
+                    <FaEye className="text-gray-500 dark:text-gray-400" />
+                  )}
+                </button>
                 {errors.password && (
-                  <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
                 )}
               </div>
             </div>

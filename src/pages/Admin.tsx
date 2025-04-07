@@ -475,20 +475,82 @@ const Admin: React.FC = () => {
                       </svg>
                     </button>
                     
-                    {/* Page numbers */}
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handlePageChange(i + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                          currentPage === i + 1
-                            ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 text-blue-600 dark:text-blue-200'
-                            : 'bg-white dark:bg-gray-700 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
+                    {/* Page numbers with limited display */}
+                    {(() => {
+                      // Define how many page numbers to show around the current page
+                      const siblingCount = 1;
+                      const boundaryCount = 1;
+                      
+                      // Calculate range to display
+                      const range = [];
+                      
+                      // Always include first page(s)
+                      for (let i = 1; i <= Math.min(boundaryCount, totalPages); i++) {
+                        range.push(i);
+                      }
+                      
+                      // Calculate start and end of current page range
+                      const startPage = Math.max(
+                        boundaryCount + 1,
+                        currentPage - siblingCount
+                      );
+                      const endPage = Math.min(
+                        totalPages - boundaryCount,
+                        currentPage + siblingCount
+                      );
+                      
+                      // Add ellipsis if there's a gap after first page(s)
+                      if (startPage > boundaryCount + 1) {
+                        range.push('ellipsis1');
+                      }
+                      
+                      // Add pages around current page
+                      for (let i = startPage; i <= endPage; i++) {
+                        if (!range.includes(i)) {
+                          range.push(i);
+                        }
+                      }
+                      
+                      // Add ellipsis if there's a gap before last page(s)
+                      if (endPage < totalPages - boundaryCount) {
+                        range.push('ellipsis2');
+                      }
+                      
+                      // Always include last page(s)
+                      for (let i = Math.max(totalPages - boundaryCount + 1, boundaryCount + 1); i <= totalPages; i++) {
+                        if (!range.includes(i)) {
+                          range.push(i);
+                        }
+                      }
+                      
+                      // Render the pagination items
+                      return range.map((page) => {
+                        if (page === 'ellipsis1' || page === 'ellipsis2') {
+                          return (
+                            <span
+                              key={`ellipsis-${page}`}
+                              className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white dark:bg-gray-700 text-sm font-medium"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+                        
+                        return (
+                          <button
+                            key={`page-${page}`}
+                            onClick={() => handlePageChange(Number(page))}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              currentPage === page
+                                ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 text-blue-600 dark:text-blue-200'
+                                : 'bg-white dark:bg-gray-700 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      });
+                    })()}
                     
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}

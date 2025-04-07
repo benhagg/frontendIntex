@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
+import { sanitizeInput } from '../utils/securityUtils';
 
 interface Movie {
   movieId: string;
@@ -102,9 +103,11 @@ const MovieDetail: React.FC = () => {
     
     setIsSubmitting(true);
     try {
-      console.log("Submitting review with comment:", data.comment); // Debug log
+      // Always send the comment as is, don't sanitize it on the client side
+      // The backend will handle sanitization
+      console.log("Original comment:", data.comment); // Debug log
       
-      // Use the new API service
+      // Use the new API service to create a new rating
       await ratingService.rateMovie(movie.movieId, data.score, data.comment);
       
       // Refresh ratings - force a new fetch from the server
@@ -125,18 +128,12 @@ const MovieDetail: React.FC = () => {
         setMovie(movieData);
       }
       
-      // Find user's new rating
-      if (user) {
-        const newUserRating = ratingsData.find((rating: Rating) => rating.userId === parseInt(user.id));
-        if (newUserRating) {
-          setUserRating(newUserRating);
-        }
-      }
+      // Clear the review form for a new rating
+      reset({ score: 0, comment: '' });
       
-      // Clear the review form
-      reset({ score: data.score, comment: '' });
+      // Don't update userRating here, as we want to allow multiple ratings
       
-      toast.success(userRating ? 'Rating updated successfully!' : 'Rating submitted successfully!');
+      toast.success('Rating submitted successfully!');
       setIsSubmitting(false);
     } catch (error) {
       console.error('Error submitting rating:', error);
