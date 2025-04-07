@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Disclosure, Menu, Transition } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import Cookies from 'js-cookie';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import Cookies from "js-cookie";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,43 +14,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(() => {
     // Get dark mode preference from cookie
-    return Cookies.get('darkMode') === 'true';
+    return Cookies.get("darkMode") === "true";
   });
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     // Store preference in a browser-accessible cookie (not httpOnly)
-    Cookies.set('darkMode', String(newMode), { expires: 365 });
+    Cookies.set("darkMode", String(newMode), { expires: 365 });
   };
 
   // Apply dark mode class to body
   React.useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
 
   const navigation = [
-    { name: 'Home', href: '/', current: false },
-    { name: 'Movies', href: '/movies', current: false },
-    { name: 'Privacy', href: '/privacy', current: false },
+    { name: "Home", href: "/", current: false },
+    { name: "Movies", href: "/movies", current: false },
+    { name: "Privacy", href: "/privacy", current: false },
   ];
 
   if (isAdmin) {
-    navigation.push({ name: 'Admin', href: '/admin', current: false });
+    navigation.push({ name: "Admin", href: "/admin", current: false });
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      <Disclosure as="nav" className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'}`}>
+    <div
+      className={`min-h-screen ${
+        darkMode ? "dark bg-gray-900 text-white" : "bg-white text-gray-900"
+      }`}
+    >
+      <Disclosure
+        as="nav"
+        className={`${darkMode ? "bg-gray-800" : "bg-blue-600"}`}
+      >
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -83,12 +90,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       className="rounded-full p-1 text-white hover:bg-opacity-75 focus:outline-none"
                     >
                       {darkMode ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                          />
                         </svg>
                       ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                          />
                         </svg>
                       )}
                     </button>
@@ -111,13 +140,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
-                          <Menu.Items className={`absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${darkMode ? 'bg-gray-700' : 'bg-white'}`}>
+                          <Menu.Items
+                            className={`absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${
+                              darkMode ? "bg-gray-700" : "bg-white"
+                            }`}
+                          >
                             <Menu.Item>
-                              {({ active }) => (
+                              {({}) => (
                                 <button
                                   onClick={handleLogout}
                                   className={`block px-4 py-2 text-sm w-full text-left ${
-                                    darkMode ? 'text-white hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'
+                                    darkMode
+                                      ? "text-white hover:bg-gray-600"
+                                      : "text-gray-700 hover:bg-gray-100"
                                   }`}
                                 >
                                   Sign out
@@ -181,7 +216,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         </div>
                       </div>
                       <div className="ml-3">
-                        <div className="text-base font-medium text-white">{user?.email}</div>
+                        <div className="text-base font-medium text-white">
+                          {user?.email}
+                        </div>
                       </div>
                       <button
                         type="button"
@@ -189,12 +226,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         className="ml-auto rounded-full p-1 text-white hover:bg-opacity-75 focus:outline-none"
                       >
                         {darkMode ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                            />
                           </svg>
                         ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                            />
                           </svg>
                         )}
                       </button>
@@ -234,7 +293,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
 
-      <footer className={`py-6 ${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'}`}>
+      <footer
+        className={`py-6 ${
+          darkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600"
+        }`}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
