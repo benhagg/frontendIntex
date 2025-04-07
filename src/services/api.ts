@@ -1,5 +1,7 @@
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import { sanitizeInput } from '../utils/securityUtils';
 
 // Create axios instance with base URL
 const api = axios.create({
@@ -57,6 +59,7 @@ export const authService = {
     return { token, user };
   },
 
+
   register: async (
     email: string,
     password: string,
@@ -67,6 +70,22 @@ export const authService = {
       password,
       confirmPassword,
     });
+  
+  register: async (registerData: {
+    email: string;
+    password: string;
+    confirmPassword: string;
+    fullName?: string;
+    phone?: string;
+    username?: string;
+    age?: string;
+    gender?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    services?: string[];
+  }) => {
+    const response = await api.post('/auth/register', registerData);
     return response.data;
   },
 
@@ -415,10 +434,14 @@ export const ratingService = {
   },
 
   rateMovie: async (showId: string, rating: number, review?: string) => {
+    // Don't sanitize the review on the client side, let the backend handle it
+    console.log("Original review:", review); // Add logging to debug
+    
     // Make sure we're sending the correct property name (ShowId) expected by the backend
-    console.log("Sending review:", review); // Add logging to debug
-    const response = await api.post("/movierating", {
-      showId: showId,
+
+
+    const response = await api.post('/movierating', { 
+      showId: showId, 
       rating: rating,
       review: review,
     });
