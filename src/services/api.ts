@@ -153,7 +153,7 @@ export const movieService = {
           return {
             movieId: movie.showId,
             title: movie.title,
-            genre: getMainGenre(movie),
+            genre: movie.genre,
             description: movie.description,
             imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available
             year: movie.releaseYear,
@@ -168,7 +168,7 @@ export const movieService = {
           return {
             movieId: movie.showId,
             title: movie.title,
-            genre: getMainGenre(movie),
+            genre: movie.genre,
             description: movie.description,
             imageUrl: `/images/${movie.showId}.jpg`,
             year: movie.releaseYear,
@@ -219,7 +219,7 @@ export const movieService = {
       return {
         movieId: movie.showId,
         title: movie.title,
-        genre: getMainGenre(movie),
+        genre: movie.genre,
         description: movie.description,
         imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
