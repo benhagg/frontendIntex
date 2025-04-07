@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
+import { sanitizeInput } from '../utils/securityUtils';
 
 interface Movie {
   movieId: string;
@@ -102,10 +103,13 @@ const MovieDetail: React.FC = () => {
     
     setIsSubmitting(true);
     try {
-      console.log("Submitting review with comment:", data.comment); // Debug log
+      // Sanitize the review text before sending it to the backend
+      const sanitizedComment = data.comment ? sanitizeInput(data.comment) : undefined;
+      console.log("Original comment:", data.comment); // Debug log
+      console.log("Sanitized comment:", sanitizedComment); // Debug log
       
       // Use the new API service
-      await ratingService.rateMovie(movie.movieId, data.score, data.comment);
+      await ratingService.rateMovie(movie.movieId, data.score, sanitizedComment || undefined);
       
       // Refresh ratings - force a new fetch from the server
       const ratingsData = await ratingService.getRatingsByMovie(movie.movieId);
