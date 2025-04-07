@@ -1,12 +1,51 @@
-import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Movies from './pages/Movies';
+import MovieDetail from './pages/MovieDetail';
+import Privacy from './pages/Privacy';
+import Admin from './pages/Admin';
 
 function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline text-blue-500">
-        Vite + React
-      </h1>
-    </>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/movies/:id" element={<MovieDetail />} />
+          <Route path="/privacy" element={<Privacy />} />
+          
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute requireAdmin={true} />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
+        </Routes>
+      </Router>
+      
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+    </AuthProvider>
   );
 }
 
