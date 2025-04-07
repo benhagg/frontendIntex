@@ -22,11 +22,15 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/movies/:id" element={<MovieDetail />} />
           <Route path="/privacy" element={<Privacy />} />
           
-          {/* Protected routes */}
+          {/* Protected movie routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/movies" element={<Movies />} />
+            <Route path="/movies/:id" element={<MovieDetail />} />
+          </Route>
+          
+          {/* Admin routes */}
           <Route element={<ProtectedRoute requireAdmin={true} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
