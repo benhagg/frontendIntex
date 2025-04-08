@@ -224,8 +224,8 @@ const Movies: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {movies.map((movie) => (
                 <Link
-                  key={movie.movieId}
-                  to={`/movies/${movie.movieId}`}
+                  key={movie.showId}
+                  to={`/movies/${movie.showId}`}
                   className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="h-64 bg-gray-200 dark:bg-gray-700 relative">
@@ -254,7 +254,7 @@ const Movies: React.FC = () => {
                       </div>
                     )}
                     <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                      {movie.year}
+                      {movie.releaseYear}
                     </div>
                   </div>
                   <div className="p-4">

@@ -5,17 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import Layout from "../components/Layout";
-
-interface Movie {
-  movieId: number;
-  title: string;
-  genre: string;
-  description: string;
-  imageUrl: string;
-  year: number;
-  director: string;
-  averageRating: number;
-}
+import { Movie } from "../types/movies";
 
 interface MovieFormData {
   title: string;
@@ -108,7 +98,7 @@ const Admin: React.FC = () => {
     try {
       if (editingMovie) {
         // Update existing movie
-        await movieService.updateMovie(editingMovie.movieId.toString(), data);
+        await movieService.updateMovie(editingMovie.showId.toString(), data);
         toast.success("Movie updated successfully!");
       } else {
         // Create new movie
@@ -138,7 +128,7 @@ const Admin: React.FC = () => {
     setValue("genre", movie.genre);
     setValue("description", movie.description || "");
     setValue("imageUrl", movie.imageUrl || "");
-    setValue("year", movie.year);
+    setValue("year", movie.releaseYear);
     setValue("director", movie.director || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -152,7 +142,7 @@ const Admin: React.FC = () => {
     if (!movieToDelete || !isAuthenticated || !isAdmin) return;
 
     try {
-      await movieService.deleteMovie(movieToDelete.movieId.toString());
+      await movieService.deleteMovie(movieToDelete.showId.toString());
 
       // Refresh movies list
       const response = await movieService.getMovies(currentPage, pageSize);
@@ -436,7 +426,7 @@ const Admin: React.FC = () => {
                   </tr>
                 ) : (
                   movies.map((movie) => (
-                    <tr key={movie.movieId}>
+                    <tr key={movie.showId}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {movie.title}
                       </td>
@@ -444,7 +434,7 @@ const Admin: React.FC = () => {
                         {movie.genre}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {movie.year}
+                        {movie.releaseYear}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {movie.averageRating.toFixed(1)}

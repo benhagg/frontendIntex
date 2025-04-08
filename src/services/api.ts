@@ -419,8 +419,6 @@ if (!window.movieRatings) {
   window.movieRatings = {};
 }
 
-// No need for a separate helper function as we calculate the average rating inline
-
 // Rating services (using the new MovieRating table)
 export const ratingService = {
   getRatingsByMovie: async (showId: string) => {
