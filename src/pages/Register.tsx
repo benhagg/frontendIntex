@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import Layout from "../components/Layout";
+import NotLoggedInLayout from "../components/notloggedinLayout";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface RegisterFormData {
@@ -124,7 +124,7 @@ const Register: React.FC = () => {
   ];
 
   return (
-    <Layout>
+    <NotLoggedInLayout>
       <div className="max-w-6xl mx-auto px-6 py-10 bg-gray-200 dark:bg-gray-800 rounded-lg">
         <h2 className="text-4xl font-bold mb-8 text-center dark:text-white">
           Create Account
@@ -413,7 +413,7 @@ const Register: React.FC = () => {
           </Link>
         </p>
       </div>
-    </Layout>
+    </NotLoggedInLayout>
   );
 };
 
