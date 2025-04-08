@@ -66,7 +66,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Link to="/" className="logo">
-                      <img src="./images/logowithwords.png" alt="logo"></img>
+                      <img src="./images/whitelogo.png" alt="logo" />
                     </Link>
                   </div>
                   <div className="hidden md:block">
@@ -173,7 +173,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         </Link>
                         <Link
                           to="/register"
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800"
+                          className="rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-opacity-75"
                         >
                           Register
                         </Link>
