@@ -56,13 +56,13 @@ export const authService = {
 
     return { token, user };
   },
-  
+
   getUserInfo: async () => {
     try {
-      const response = await api.get('/auth/user-info');
+      const response = await api.get("/auth/user-info");
       return response.data;
     } catch (error) {
-      console.error('Error fetching user info:', error);
+      console.error("Error fetching user info:", error);
       return null;
     }
   },
@@ -168,9 +168,11 @@ export const movieService = {
           return {
             movieId: movie.showId,
             title: movie.title,
-            genre: getMainGenre(movie),
+            genre: movie.genre,
             description: movie.description,
-            imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available, ensuring it's properly encoded
+            imageUrl: movie.imageUrl
+              ? encodeURI(movie.imageUrl)
+              : `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available, ensuring it's properly encoded
             year: movie.releaseYear,
             director: movie.director,
             averageRating: avgRating,
@@ -183,7 +185,7 @@ export const movieService = {
           return {
             movieId: movie.showId,
             title: movie.title,
-            genre: getMainGenre(movie),
+            genre: movie.genre,
             description: movie.description,
             imageUrl: `/images/${movie.showId}.jpg`,
             year: movie.releaseYear,
@@ -234,9 +236,11 @@ export const movieService = {
       return {
         movieId: movie.showId,
         title: movie.title,
-        genre: getMainGenre(movie),
+        genre: movie.genre,
         description: movie.description,
-        imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`,
+        imageUrl: movie.imageUrl
+          ? encodeURI(movie.imageUrl)
+          : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
         director: movie.director,
         averageRating: avgRating,
@@ -250,7 +254,9 @@ export const movieService = {
         title: movie.title,
         genre: movie.genre,
         description: movie.description,
-        imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`,
+        imageUrl: movie.imageUrl
+          ? encodeURI(movie.imageUrl)
+          : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
         director: movie.director,
         averageRating: 0,
