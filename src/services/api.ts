@@ -126,6 +126,26 @@ export const authService = {
 
 // Movie services (using the new MovieTitle table)
 export const movieService = {
+  getRecommendations: async (movieId: string) => {
+    const response = await api.get(`/movies/${movieId}/recommendations`);
+    
+    // Transform the response to match the expected Movie format
+    const recommendedMovies = response.data.map((movie: any) => ({
+      movieId: movie.showId,
+      title: movie.title,
+      genre: movie.genre,
+      description: movie.description,
+      imageUrl: movie.imageUrl
+        ? encodeURI(movie.imageUrl)
+        : `/images/${movie.showId}.jpg`,
+      year: movie.releaseYear,
+      director: movie.director,
+      averageRating: 0, // We don't have ratings for recommendations yet
+      country: movie.country,
+    }));
+
+    return recommendedMovies;
+  },
   getMovies: async (
     page = 1,
     pageSize = 10,
@@ -184,6 +204,7 @@ export const movieService = {
             year: movie.releaseYear,
             director: movie.director,
             averageRating: avgRating,
+            country: movie.country,
           };
         } catch (error) {
           console.error(

@@ -57,38 +57,31 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
     >
       <Disclosure
         as="nav"
-        className={`${darkMode ? "bg-gray-800" : "bg-white"}`}
+        className={`${darkMode ? "bg-gray-800" : "bg-white"} py-3`}
       >
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="h-16">
-                <div className="flex items-center">
+              <div className="h-16 flex items-center">
+                <div className="flex items-center justify-between w-full">
                   <div className="flex-shrink-0">
-                    <Link to="/" className="logo">
-                      <img src="./images/logowithwords.png" alt="logo" />
+                    <Link to={isAuthenticated ? "/movies" : "/"} className="logo">
+                      <img 
+                        src="./images/logowithwords.png" 
+                        alt="logo" 
+                        className={`h-10 ${darkMode ? "brightness-0 invert" : ""}`}
+                      />
                     </Link>
                   </div>
-                  <div className="hidden md:block">
-                    <div className="ml-10 flex items-baseline space-x-4">
-                      {navigation.map((item) => (
-                        <Link
-                          key={item.name}
-                          to={item.href}
-                          className={`px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-opacity-75`}
-                        >
-                          {item.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="hidden md:block">
-                  <div className="ml-4 flex items-center md:ml-6">
+                  <div className="hidden md:flex items-center space-x-4">
                     <button
                       type="button"
                       onClick={toggleDarkMode}
-                      className="rounded-full p-1 text-white hover:bg-opacity-75 focus:outline-none"
+                      className={`rounded-md p-2 ${
+                        darkMode 
+                          ? "bg-gray-700 text-white hover:bg-gray-600" 
+                          : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                      } focus:outline-none border border-gray-500 shadow-sm transition-colors duration-200`}
                     >
                       {darkMode ? (
                         <svg
@@ -167,13 +160,21 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
                       <div className="flex space-x-4">
                         <Link
                           to="/login"
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-opacity-75"
+                          className={`rounded-md px-3 py-2 text-sm font-medium ${
+                            darkMode 
+                              ? "text-white hover:bg-gray-700" 
+                              : "text-gray-800 hover:bg-gray-200"
+                          } border border-gray-500`}
                         >
                           Login
                         </Link>
                         <Link
                           to="/register"
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-opacity-75"
+                          className={`rounded-md px-3 py-2 text-sm font-medium ${
+                            darkMode 
+                              ? "text-white hover:bg-gray-700" 
+                              : "text-gray-800 hover:bg-gray-200"
+                          } border border-gray-500`}
                         >
                           Register
                         </Link>
@@ -181,8 +182,49 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
                     )}
                   </div>
                 </div>
-                <div className="-mr-2 flex md:hidden">
+                <div className="flex md:hidden">
                   {/* Mobile menu button */}
+                  <button
+                    type="button"
+                    onClick={toggleDarkMode}
+                    className={`mr-2 rounded-md p-2 ${
+                      darkMode 
+                        ? "bg-gray-700 text-white hover:bg-gray-600" 
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                    } focus:outline-none border border-gray-500 shadow-sm transition-colors duration-200`}
+                  >
+                    {darkMode ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                        />
+                      </svg>
+                    )}
+                  </button>
                   <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-opacity-75 focus:outline-none">
                     <span className="sr-only">Open main menu</span>
                     {open ? (
@@ -197,15 +239,7 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
 
             <Disclosure.Panel className="md:hidden">
               <div className="space-y-1 px-2 pb-3 pt-2">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-opacity-75`}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+                {/* Mobile navigation links removed */}
               </div>
               <div className="border-t border-gray-700 pb-3 pt-4">
                 {isAuthenticated ? (
@@ -224,7 +258,11 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
                       <button
                         type="button"
                         onClick={toggleDarkMode}
-                        className="ml-auto rounded-full p-1 text-white hover:bg-opacity-75 focus:outline-none"
+                        className={`ml-auto rounded-md p-2 ${
+                          darkMode 
+                            ? "bg-gray-700 text-white hover:bg-gray-600" 
+                            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        } focus:outline-none border border-gray-500 shadow-sm transition-colors duration-200`}
                       >
                         {darkMode ? (
                           <svg
@@ -272,13 +310,21 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
                   <div className="mt-3 space-y-1 px-2">
                     <Link
                       to="/login"
-                      className="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-opacity-75"
+                      className={`block rounded-md px-3 py-2 text-base font-medium ${
+                        darkMode 
+                          ? "text-white hover:bg-gray-700" 
+                          : "text-gray-800 hover:bg-gray-200"
+                      } border border-gray-500 mb-2`}
                     >
                       Login
                     </Link>
                     <Link
                       to="/register"
-                      className="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-opacity-75"
+                      className={`block rounded-md px-3 py-2 text-base font-medium ${
+                        darkMode 
+                          ? "text-white hover:bg-gray-700" 
+                          : "text-gray-800 hover:bg-gray-200"
+                      } border border-gray-500`}
                     >
                       Register
                     </Link>
