@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import NotLoggedInLayout from "../components/notloggedinLayout";
 
 interface LoginFormData {
   email: string;
@@ -40,7 +41,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <NotLoggedInLayout>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">
@@ -139,7 +140,7 @@ const Login: React.FC = () => {
           </p>
         </div>
       </div>
-    </Layout>
+    </NotLoggedInLayout>
   );
 };
 
