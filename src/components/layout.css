@@ -1,0 +1,138 @@
+layout.css
+/* Layout Styles */
+
+/* Container and Layout */
+.layout-container {
+  min-height: 100vh;
+}
+.layout-dark {
+  background-color: #1f2937; /* bg-gray-900 */
+  color: #ffffff;
+}
+.layout-light {
+  background-color: #ffffff;
+  color: #1f2937; /* text-gray-900 */
+}
+
+/* Navbar */
+.navbar-dark {
+  background-color: #1f2937; /* bg-gray-800 */
+}
+.navbar-light {
+  background-color: #287980; /* bg-blue-600 */
+}
+.navbar-link {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+.navbar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark Mode Toggle Button */
+.dark-toggle {
+  padding: 0.25rem;
+  border-radius: 9999px;
+  color: #ffffff;
+}
+.dark-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* User Menu Button */
+.user-menu-initial {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background-color: #e5e7eb; /* bg-gray-200 */
+  color: #374151; /* text-gray-700 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Menu */
+.mobile-menu-button {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  color: #ffffff;
+}
+.mobile-menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Footer */
+.footer-dark {
+  background-color: #1f2937; /* bg-gray-800 */
+  color: #ffffff;
+}
+.footer-light {
+  background-color: #f3f4f6; /* bg-gray-100 */
+  color: #4b5563; /* text-gray-600 */
+}
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+/* Utility Classes */
+.text-sm {
+  font-size: 0.875rem;
+}
+.text-base {
+  font-size: 1rem;
+}
+.text-white {
+  color: #ffffff;
+}
+.text-gray-700 {
+  color: #374151;
+}
+.text-gray-600 {
+  color: #4b5563;
+}
+.text-gray-900 {
+  color: #1f2937;
+}
+.text-xl {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.font-medium {
+  font-weight: 500;
+}
+.font-bold {
+  font-weight: 700;
+}
+.rounded-md {
+  border-radius: 0.375rem;
+}
+.rounded-full {
+  border-radius: 9999px;
+}
+.bg-blue-700 {
+  background-color: #287980;
+}
+.bg-blue-800 {
+  background-color: #287980;
+}
+.bg-blue-600 {
+  background-color: #287980;
+}
+.hover\:bg-blue-800:hover {
+  background-color: #287980;
+}
+.bg-opacity-75 {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+.hover\:bg-opacity-75:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+.logo {
+  width: 120px; /* You can adjust this to your preferred size */
+  height: auto; /* Maintains the aspect ratio */
+  object-fit: contain;
+  display: block;
+}
