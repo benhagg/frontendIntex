@@ -60,7 +60,6 @@ export const authService = {
     // Store token and user info
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
-    console.log("NODE_ENV:", process.env.NODE_ENV);
 
     return { token, user };
   },

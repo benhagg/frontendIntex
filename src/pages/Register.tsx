@@ -310,14 +310,8 @@ const Register: React.FC = () => {
                 {...register("password", {
                   required: "Password is required",
                   minLength: {
-                    value: 10,
-                    message: "Password must be at least 10 characters",
-                  },
-                  pattern: {
-                    value:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,
-                    message:
-                      "Password must include uppercase, lowercase, number and special character",
+                    value: 15,
+                    message: "Password must be at least 15 characters",
                   },
                 })}
                 className="w-full border rounded p-2 pr-10 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
