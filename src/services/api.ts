@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { Movie } from "../types/movies";
 
 // Create axios instance with base URL
 // pulls from .env file (for development) or uses an Azure environment variable (for production)
@@ -485,3 +486,65 @@ export const privacyService = {
 };
 
 export default api;
+
+interface FetchMoviesResponse {
+  movieList: Movie[];
+  totalNumMovies: number;
+}
+
+export const fetchMovies = async (
+  pageSize: number,
+  pageNum: number
+): Promise<FetchMoviesResponse> => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/MovieTitles?pageSize=${pageSize}&pageNum=${pageNum}`
+    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching projects: ", error);
+    throw error;
+  }
+};
+
+// adding an new movie
+export const addMovie = async (newMovie: Movie): Promise<Movie> => {
+  try {
+    const response = await fetch(`${baseUrl}/MovieTitle`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newMovie),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add Movie");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error adding Movie,", error);
+    throw error;
+  }
+};
+
+// updating a movie
+export const updateMovie = async (
+  showId: number,
+  updateMovie: Movie
+): Promise<Movie> => {
+  try {
+    const response = await fetch(`${baseUrl}/UpdateBook/${showId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateMovie),
+    });
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating movie:", error);
+    throw error;
+  }
+};
