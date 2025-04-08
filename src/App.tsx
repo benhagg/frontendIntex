@@ -59,6 +59,16 @@ function App() {
         style={{ background: "#2B373B" }}
         buttonStyle={{ color: "#4e503b", fontSize: "13px" }}
         declineButtonStyle={{ fontSize: "13px" }}
+        onAccept={() => {
+          // Set a cookie when the user accepts
+          document.cookie = "cineNicheConsent=accepted; path=/; SameSite=Lax;";
+          console.log("User accepted cookies");
+        }}
+        onDecline={() => {
+          // Set a cookie when the user declines
+          document.cookie = "cineNicheConsent=declined; path=/; SameSite=Lax;";
+          console.log("User declined cookies");
+        }}
       >
         We use cookies to enhance your experience, analyze traffic, and
         personalize content.{" "}
