@@ -2,8 +2,15 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 // Create axios instance with base URL
+// pulls from .env file (for development) or uses an Azure environment variable (for production)
+const environment = process.env.NODE_ENV;
+const baseUrl =
+  environment === "development"
+    ? "http://localhost:5232/api"
+    : "https://intexbackend-a6fvcvg6cha4hwcx.centralus-01.azurewebsites.net/api";
+
 const api = axios.create({
-  baseURL: "http://localhost:5232/api", // Using HTTP endpoint
+  baseURL: baseUrl,
   headers: {
     "Content-Type": "application/json",
   },
@@ -53,6 +60,7 @@ export const authService = {
     // Store token and user info
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
+    console.log("NODE_ENV:", process.env.NODE_ENV);
 
     return { token, user };
   },
