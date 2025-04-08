@@ -14,8 +14,6 @@ import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import CookieConsent from "react-cookie-consent";
 
-
-
 function App() {
   return (
     <AuthProvider>
@@ -26,13 +24,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/privacy" element={<Privacy />} />
-          
+
           {/* Protected movie routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/movies" element={<Movies />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
           </Route>
-          
+
           {/* Admin routes */}
           <Route element={<ProtectedRoute requireAdmin={true} />}>
             <Route path="/admin" element={<Admin />} />
