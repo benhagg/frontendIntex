@@ -65,7 +65,7 @@ const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
               <div className="h-16 flex items-center">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex-shrink-0">
-                    <Link to="/" className="logo">
+                    <Link to={isAuthenticated ? "/movies" : "/"} className="logo">
                       <img 
                         src="./images/logowithwords.png" 
                         alt="logo" 

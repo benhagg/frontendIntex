@@ -64,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <Link to="/" className="logo">
+                    <Link to={isAuthenticated ? "/movies" : "/"} className="logo">
                       <img src="/images/whitelogo.png" alt="logo" />
                     </Link>
                   </div>

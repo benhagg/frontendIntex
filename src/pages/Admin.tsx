@@ -5,17 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import Layout from "../components/Layout";
-
-interface Movie {
-  movieId: number;
-  title: string;
-  genre: string;
-  description: string;
-  imageUrl: string;
-  year: number;
-  director: string;
-  averageRating: number;
-}
+import { Movie } from "../types/movies";
 
 interface MovieFormData {
   title: string;
@@ -196,7 +186,7 @@ const Admin: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full max-w-7xl mx-auto py-8">
         <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
         {/* Movie Form */}
@@ -392,36 +382,48 @@ const Admin: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table className="w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/4"
                   >
                     Title
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/6"
                   >
                     Genre
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/12"
                   >
                     Year
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/12"
                   >
                     Rating
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/6"
+                  >
+                    Director
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/6"
+                  >
+                    Country
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider w-1/12"
                   >
                     Actions
                   </th>
@@ -437,10 +439,10 @@ const Admin: React.FC = () => {
                 ) : (
                   movies.map((movie) => (
                     <tr key={movie.movieId}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 truncate text-sm font-medium">
                         {movie.title}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-6 py-4 truncate text-sm">
                         {movie.genre}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -448,6 +450,12 @@ const Admin: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {movie.averageRating.toFixed(1)}
+                      </td>
+                      <td className="px-6 py-4 truncate text-sm">
+                        {movie.director || "-"}
+                      </td>
+                      <td className="px-6 py-4 truncate text-sm">
+                        {movie.country || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
