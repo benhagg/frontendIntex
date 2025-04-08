@@ -1,16 +1,12 @@
 export interface Movie {
-  showId: number;
-  type: string;
+  movieId: number;
   title: string;
+  genre: string;
   description: string;
   imageUrl: string;
+  year: number;
   director: string;
-  cast: string;
-  duration: string;
-  country: string;
   averageRating: number;
-  releaseYear: number;
-  genre: string;
 
   // Genre flags
   Action?: boolean;
