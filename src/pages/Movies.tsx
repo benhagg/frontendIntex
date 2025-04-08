@@ -66,14 +66,19 @@ const Movies: React.FC = () => {
     fetchMovies(true);
   }, []);
 
+  // Add a new useEffect to watch for selectedGenre changes
+  useEffect(() => {
+    // Skip the initial render
+    if (selectedGenre !== undefined) {
+      setPage(1);
+      fetchMovies(true);
+    }
+  }, [selectedGenre]);
+
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newGenre = e.target.value;
     setSelectedGenre(newGenre);
-    setPage(1);
-    // Automatically fetch movies when genre changes
-    setTimeout(() => {
-      fetchMovies(true);
-    }, 0);
+    // No need to call fetchMovies here as the useEffect will handle it
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
