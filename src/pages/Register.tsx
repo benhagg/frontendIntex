@@ -126,13 +126,17 @@ const Register: React.FC = () => {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-6 py-10 bg-gray-200 dark:bg-gray-800 rounded-lg">
-        <h2 className="text-4xl font-bold mb-8 text-center dark:text-white">Create Account</h2>
+        <h2 className="text-4xl font-bold mb-8 text-center dark:text-white">
+          Create Account
+        </h2>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
           <div>
-            <label className="block text-sm font-medium mb-1 dark:text-white">Full Name:</label>
+            <label className="block text-sm font-medium mb-1 dark:text-white">
+              Full Name:
+            </label>
             <input
               {...register("fullName", { required: "Full name is required" })}
               className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -142,14 +146,16 @@ const Register: React.FC = () => {
                 {errors.fullName.message}
               </p>
             )}
-            
-            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">Phone Number:</label>
+
+            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">
+              Phone Number:
+            </label>
             <input
-              {...register("phone", { 
+              {...register("phone", {
                 pattern: {
                   value: /^[0-9]{10}$/,
-                  message: "Please enter a valid 10-digit phone number"
-                }
+                  message: "Please enter a valid 10-digit phone number",
+                },
               })}
               className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
               placeholder="1234567890"
@@ -162,15 +168,17 @@ const Register: React.FC = () => {
                 {errors.phone.message}
               </p>
             )}
-            
-            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">Email:</label>
+
+            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">
+              Email:
+            </label>
             <input
               {...register("email", {
                 required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Please enter a valid email address"
-                }
+                  message: "Please enter a valid email address",
+                },
               })}
               className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
             />
@@ -181,12 +189,17 @@ const Register: React.FC = () => {
             )}
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium mb-1 dark:text-white">Age:</label>
+                <label className="block text-sm font-medium mb-1 dark:text-white">
+                  Age:
+                </label>
                 <input
                   type="number"
                   {...register("age", {
-                    min: { value: 13, message: "Must be at least 13 years old" },
-                    max: { value: 120, message: "Age cannot exceed 120" }
+                    min: {
+                      value: 13,
+                      message: "Must be at least 13 years old",
+                    },
+                    max: { value: 120, message: "Age cannot exceed 120" },
                   })}
                   className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 />
@@ -197,7 +210,9 @@ const Register: React.FC = () => {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 dark:text-white">Gender:</label>
+                <label className="block text-sm font-medium mb-1 dark:text-white">
+                  Gender:
+                </label>
                 <select
                   {...register("gender")}
                   className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -212,7 +227,9 @@ const Register: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium mb-1 dark:text-white">City:</label>
+                <label className="block text-sm font-medium mb-1 dark:text-white">
+                  City:
+                </label>
                 <input
                   {...register("city", { required: "City is required" })}
                   className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -224,7 +241,9 @@ const Register: React.FC = () => {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 dark:text-white">State:</label>
+                <label className="block text-sm font-medium mb-1 dark:text-white">
+                  State:
+                </label>
                 <select
                   {...register("state", { required: "State is required" })}
                   className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -243,15 +262,17 @@ const Register: React.FC = () => {
                 )}
               </div>
             </div>
-            
-            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">Zip Code:</label>
+
+            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">
+              Zip Code:
+            </label>
             <input
               {...register("zip", {
                 required: "Zip code is required",
                 pattern: {
                   value: /^\d{5}$/,
-                  message: "Please enter a valid 5-digit zip code"
-                }
+                  message: "Please enter a valid 5-digit zip code",
+                },
               })}
               className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
               maxLength={5}
@@ -267,7 +288,9 @@ const Register: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 dark:text-white">Username:</label>
+            <label className="block text-sm font-medium mb-1 dark:text-white">
+              Username:
+            </label>
             <input
               {...register("username", { required: "Username is required" })}
               className="w-full border rounded p-2 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -277,8 +300,10 @@ const Register: React.FC = () => {
                 {errors.username.message}
               </p>
             )}
-            
-            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">Password:</label>
+
+            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">
+              Password:
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -286,12 +311,14 @@ const Register: React.FC = () => {
                   required: "Password is required",
                   minLength: {
                     value: 10,
-                    message: "Password must be at least 10 characters"
+                    message: "Password must be at least 10 characters",
                   },
                   pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,
-                    message: "Password must include uppercase, lowercase, number and special character"
-                  }
+                    value:
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,
+                    message:
+                      "Password must include uppercase, lowercase, number and special character",
+                  },
                 })}
                 className="w-full border rounded p-2 pr-10 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
               />
@@ -312,8 +339,10 @@ const Register: React.FC = () => {
                 {errors.password.message}
               </p>
             )}
-            
-            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">Confirm Password:</label>
+
+            <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">
+              Confirm Password:
+            </label>
             <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -347,7 +376,10 @@ const Register: React.FC = () => {
             </label>
             <div className="grid grid-cols-2 gap-2 mt-2">
               {streamingServices.map((service) => (
-                <label key={service} className="flex items-center dark:text-white">
+                <label
+                  key={service}
+                  className="flex items-center dark:text-white"
+                >
                   <input
                     type="checkbox"
                     value={service}
