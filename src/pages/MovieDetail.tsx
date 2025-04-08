@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { movieService, ratingService } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
@@ -16,6 +16,7 @@ interface Movie {
   year: number;
   director: string;
   averageRating: number;
+  country?: string;
 }
 
 interface Rating {
@@ -39,7 +40,9 @@ const MovieDetail: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
+  const [recommendations, setRecommendations] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [userRating, setUserRating] = useState<Rating | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -93,6 +96,27 @@ const MovieDetail: React.FC = () => {
 
     fetchMovieAndRatings();
   }, [id, isAuthenticated, user, setValue]);
+
+  // Fetch movie recommendations
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        if (!id) return;
+
+        setIsLoadingRecommendations(true);
+        const recommendedMovies = await movieService.getRecommendations(id);
+        setRecommendations(recommendedMovies);
+        setIsLoadingRecommendations(false);
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+        setIsLoadingRecommendations(false);
+      }
+    };
+
+    if (!isLoading && movie) {
+      fetchRecommendations();
+    }
+  }, [id, isLoading, movie]);
 
   const onSubmitRating = async (data: RatingFormData) => {
     if (!isAuthenticated) {
@@ -576,6 +600,75 @@ const MovieDetail: React.FC = () => {
             </div>
           </div>
         </div>
+        
+        {/* Movie Recommendations Section */}
+        {recommendations.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {recommendations.map((rec) => (
+                <Link
+                  key={rec.movieId}
+                  to={`/movies/${rec.movieId}`}
+                  className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+                >
+                  <div className="h-48 bg-gray-200 dark:bg-gray-700 relative">
+                    {rec.imageUrl ? (
+                      <img
+                        src={rec.imageUrl}
+                        alt={rec.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // If the image fails to load, replace with a placeholder
+                          e.currentTarget.src = "/images/movie-collage.png";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-300 dark:bg-gray-600">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-10 h-10 text-gray-500 dark:text-gray-400"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0118 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0118 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 016 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
+                      {rec.year}
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-md font-semibold mb-1 truncate">
+                      {rec.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      {rec.genre}
+                    </p>
+                    {renderRatingStars(rec.averageRating)}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Loading state for recommendations */}
+        {isLoadingRecommendations && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
