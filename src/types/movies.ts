@@ -7,6 +7,7 @@ export interface Movie {
   year: number;
   director: string;
   averageRating: number;
+  country?: string;
 
   // Genre flags
   Action?: boolean;

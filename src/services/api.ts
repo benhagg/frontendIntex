@@ -183,6 +183,7 @@ export const movieService = {
             year: movie.releaseYear,
             director: movie.director,
             averageRating: avgRating,
+            country: movie.country,
           };
         } catch (error) {
           console.error(
