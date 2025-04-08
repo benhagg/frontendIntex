@@ -10,7 +10,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const NotLoggedInLayout: React.FC<LayoutProps> = ({ children }) => {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(() => {
@@ -40,6 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [darkMode]);
 
   const navigation = [
+    { name: "Home", href: "/", current: false },
     { name: "Movies", href: "/movies", current: false },
     { name: "Privacy", href: "/privacy", current: false },
   ];
@@ -56,16 +57,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     >
       <Disclosure
         as="nav"
-        className={`${darkMode ? "bg-gray-800" : "bg-blue-600"}`}
+        className={`${darkMode ? "bg-gray-800" : "bg-white"}`}
       >
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="flex h-16 items-center justify-between">
+              <div className="h-16">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Link to="/" className="logo">
-                      <img src="/images/whitelogo.png" alt="logo" />
+                      <img src="./images/logowithwords.png" alt="logo" />
                     </Link>
                   </div>
                   <div className="hidden md:block">
@@ -315,4 +316,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default Layout;
+export default NotLoggedInLayout;

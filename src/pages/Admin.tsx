@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { movieService } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'react-toastify';
-import { useForm } from 'react-hook-form';
-import Layout from '../components/Layout';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { movieService } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import Layout from "../components/Layout";
 
 interface Movie {
   movieId: number;
@@ -38,7 +38,7 @@ const Admin: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const searchTimeoutRef = React.useRef<number | null>(null);
 
   const {
@@ -52,8 +52,8 @@ const Admin: React.FC = () => {
   // Check if user is admin, if not redirect to home
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || !isAdmin)) {
-      toast.error('You do not have permission to access this page.');
-      navigate('/');
+      toast.error("You do not have permission to access this page.");
+      navigate("/");
     }
   }, [isAuthenticated, isAdmin, isLoading, navigate]);
 
@@ -61,13 +61,18 @@ const Admin: React.FC = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await movieService.getMovies(currentPage, pageSize, undefined, searchTerm);
+        const response = await movieService.getMovies(
+          currentPage,
+          pageSize,
+          undefined,
+          searchTerm
+        );
         setMovies(response.movies);
         setTotalPages(response.totalPages);
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching movies:', error);
-        toast.error('Failed to load movies. Please try again later.');
+        console.error("Error fetching movies:", error);
+        toast.error("Failed to load movies. Please try again later.");
         setIsLoading(false);
       }
     };
@@ -81,12 +86,12 @@ const Admin: React.FC = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    
+
     // Clear any existing timeout
     if (searchTimeoutRef.current) {
       window.clearTimeout(searchTimeoutRef.current);
     }
-    
+
     // Set a new timeout to update search after typing stops
     searchTimeoutRef.current = window.setTimeout(() => {
       setCurrentPage(1); // Reset to first page when searching
@@ -95,7 +100,7 @@ const Admin: React.FC = () => {
 
   const onSubmit = async (data: MovieFormData) => {
     if (!isAuthenticated || !isAdmin) {
-      toast.error('You do not have permission to perform this action.');
+      toast.error("You do not have permission to perform this action.");
       return;
     }
 
@@ -104,11 +109,11 @@ const Admin: React.FC = () => {
       if (editingMovie) {
         // Update existing movie
         await movieService.updateMovie(editingMovie.movieId.toString(), data);
-        toast.success('Movie updated successfully!');
+        toast.success("Movie updated successfully!");
       } else {
         // Create new movie
         await movieService.createMovie(data);
-        toast.success('Movie created successfully!');
+        toast.success("Movie created successfully!");
       }
 
       // Refresh movies list
@@ -120,8 +125,8 @@ const Admin: React.FC = () => {
       reset();
       setEditingMovie(null);
     } catch (error) {
-      console.error('Error saving movie:', error);
-      toast.error('Failed to save movie. Please try again later.');
+      console.error("Error saving movie:", error);
+      toast.error("Failed to save movie. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -129,13 +134,13 @@ const Admin: React.FC = () => {
 
   const handleEdit = (movie: Movie) => {
     setEditingMovie(movie);
-    setValue('title', movie.title);
-    setValue('genre', movie.genre);
-    setValue('description', movie.description || '');
-    setValue('imageUrl', movie.imageUrl || '');
-    setValue('year', movie.year);
-    setValue('director', movie.director || '');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setValue("title", movie.title);
+    setValue("genre", movie.genre);
+    setValue("description", movie.description || "");
+    setValue("imageUrl", movie.imageUrl || "");
+    setValue("year", movie.year);
+    setValue("director", movie.director || "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = (movie: Movie) => {
@@ -148,16 +153,16 @@ const Admin: React.FC = () => {
 
     try {
       await movieService.deleteMovie(movieToDelete.movieId.toString());
-      
+
       // Refresh movies list
       const response = await movieService.getMovies(currentPage, pageSize);
       setMovies(response.movies);
       setTotalPages(response.totalPages);
-      
-      toast.success('Movie deleted successfully!');
+
+      toast.success("Movie deleted successfully!");
     } catch (error) {
-      console.error('Error deleting movie:', error);
-      toast.error('Failed to delete movie. Please try again later.');
+      console.error("Error deleting movie:", error);
+      toast.error("Failed to delete movie. Please try again later.");
     } finally {
       setShowDeleteModal(false);
       setMovieToDelete(null);
@@ -197,97 +202,123 @@ const Admin: React.FC = () => {
         {/* Movie Form */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">
-            {editingMovie ? 'Edit Movie' : 'Add New Movie'}
+            {editingMovie ? "Edit Movie" : "Add New Movie"}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="title" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium mb-1"
+                >
                   Title *
                 </label>
                 <input
                   id="title"
                   type="text"
-                  {...register('title', { required: 'Title is required' })}
+                  {...register("title", { required: "Title is required" })}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
                 {errors.title && (
-                  <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.title.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="genre" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="genre"
+                  className="block text-sm font-medium mb-1"
+                >
                   Genre *
                 </label>
                 <input
                   id="genre"
                   type="text"
-                  {...register('genre', { required: 'Genre is required' })}
+                  {...register("genre", { required: "Genre is required" })}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
                 {errors.genre && (
-                  <p className="mt-1 text-sm text-red-600">{errors.genre.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.genre.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="year" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="year"
+                  className="block text-sm font-medium mb-1"
+                >
                   Year *
                 </label>
                 <input
                   id="year"
                   type="number"
-                  {...register('year', {
-                    required: 'Year is required',
+                  {...register("year", {
+                    required: "Year is required",
                     min: {
                       value: 1888,
-                      message: 'Year must be 1888 or later',
+                      message: "Year must be 1888 or later",
                     },
                     max: {
                       value: new Date().getFullYear() + 5,
-                      message: `Year must be ${new Date().getFullYear() + 5} or earlier`,
+                      message: `Year must be ${
+                        new Date().getFullYear() + 5
+                      } or earlier`,
                     },
                   })}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
                 {errors.year && (
-                  <p className="mt-1 text-sm text-red-600">{errors.year.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.year.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="director" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="director"
+                  className="block text-sm font-medium mb-1"
+                >
                   Director
                 </label>
                 <input
                   id="director"
                   type="text"
-                  {...register('director')}
+                  {...register("director")}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="imageUrl" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="imageUrl"
+                  className="block text-sm font-medium mb-1"
+                >
                   Image URL
                 </label>
                 <input
                   id="imageUrl"
                   type="text"
-                  {...register('imageUrl')}
+                  {...register("imageUrl")}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="description" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium mb-1"
+                >
                   Description
                 </label>
                 <textarea
                   id="description"
                   rows={4}
-                  {...register('description')}
+                  {...register("description")}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 ></textarea>
               </div>
@@ -309,10 +340,10 @@ const Admin: React.FC = () => {
                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {isSubmitting
-                  ? 'Saving...'
+                  ? "Saving..."
                   : editingMovie
-                  ? 'Update Movie'
-                  : 'Add Movie'}
+                  ? "Update Movie"
+                  : "Add Movie"}
               </button>
             </div>
           </form>
@@ -340,10 +371,13 @@ const Admin: React.FC = () => {
                 </select>
               </div>
             </div>
-            
+
             {/* Search Bar */}
             <div className="w-full">
-              <label htmlFor="search" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="search"
+                className="block text-sm font-medium mb-1"
+              >
                 Search Movies
               </label>
               <input
@@ -458,46 +492,145 @@ const Admin: React.FC = () => {
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm">
-                    Showing page <span className="font-medium">{currentPage}</span> of{' '}
+                    Showing page{" "}
+                    <span className="font-medium">{currentPage}</span> of{" "}
                     <span className="font-medium">{totalPages}</span>
                   </p>
                 </div>
                 <div>
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <nav
+                    className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                    aria-label="Pagination"
+                  >
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
                       <span className="sr-only">Previous</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.75 19.5L8.25 12l7.5-7.5"
+                        />
                       </svg>
                     </button>
-                    
-                    {/* Page numbers */}
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handlePageChange(i + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                          currentPage === i + 1
-                            ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 text-blue-600 dark:text-blue-200'
-                            : 'bg-white dark:bg-gray-700 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                    
+
+                    {/* Page numbers with limited display */}
+                    {(() => {
+                      // Define how many page numbers to show around the current page
+                      const siblingCount = 1;
+                      const boundaryCount = 1;
+
+                      // Calculate range to display
+                      const range = [];
+
+                      // Always include first page(s)
+                      for (
+                        let i = 1;
+                        i <= Math.min(boundaryCount, totalPages);
+                        i++
+                      ) {
+                        range.push(i);
+                      }
+
+                      // Calculate start and end of current page range
+                      const startPage = Math.max(
+                        boundaryCount + 1,
+                        currentPage - siblingCount
+                      );
+                      const endPage = Math.min(
+                        totalPages - boundaryCount,
+                        currentPage + siblingCount
+                      );
+
+                      // Add ellipsis if there's a gap after first page(s)
+                      if (startPage > boundaryCount + 1) {
+                        range.push("ellipsis1");
+                      }
+
+                      // Add pages around current page
+                      for (let i = startPage; i <= endPage; i++) {
+                        if (!range.includes(i)) {
+                          range.push(i);
+                        }
+                      }
+
+                      // Add ellipsis if there's a gap before last page(s)
+                      if (endPage < totalPages - boundaryCount) {
+                        range.push("ellipsis2");
+                      }
+
+                      // Always include last page(s)
+                      for (
+                        let i = Math.max(
+                          totalPages - boundaryCount + 1,
+                          boundaryCount + 1
+                        );
+                        i <= totalPages;
+                        i++
+                      ) {
+                        if (!range.includes(i)) {
+                          range.push(i);
+                        }
+                      }
+
+                      // Render the pagination items
+                      return range.map((page) => {
+                        if (page === "ellipsis1" || page === "ellipsis2") {
+                          return (
+                            <span
+                              key={`ellipsis-${page}`}
+                              className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white dark:bg-gray-700 text-sm font-medium"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+
+                        return (
+                          <button
+                            key={`page-${page}`}
+                            onClick={() => handlePageChange(Number(page))}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              currentPage === page
+                                ? "z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 text-blue-600 dark:text-blue-200"
+                                : "bg-white dark:bg-gray-700 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      });
+                    })()}
+
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
                       <span className="sr-only">Next</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                        />
                       </svg>
                     </button>
                   </nav>
@@ -512,18 +645,37 @@ const Admin: React.FC = () => {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+            >
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
 
             <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-red-600 dark:text-red-200">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6 text-red-600 dark:text-red-200"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                      />
                     </svg>
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -532,7 +684,8 @@ const Admin: React.FC = () => {
                     </h3>
                     <div className="mt-2">
                       <p className="text-sm">
-                        Are you sure you want to delete "{movieToDelete?.title}"? This action cannot be undone.
+                        Are you sure you want to delete "{movieToDelete?.title}
+                        "? This action cannot be undone.
                       </p>
                     </div>
                   </div>

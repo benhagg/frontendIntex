@@ -5,6 +5,22 @@ interface User {
   id: string;
   email: string;
   roles: string[];
+  name?: string;
+}
+
+interface RegisterData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  fullName?: string;
+  phone?: string;
+  username?: string;
+  age?: string;
+  gender?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  services?: string[];
 }
 
 interface AuthContextType {
@@ -12,7 +28,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, confirmPassword: string) => Promise<void>;
+  register: (registerData: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
@@ -37,7 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Check if user is already logged in
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const isAuth = authService.isAuthenticated();
       setIsAuthenticated(isAuth);
       
@@ -45,6 +61,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentUser = authService.getCurrentUser();
         setUser(currentUser);
         setIsAdmin(authService.isAdmin());
+        
+        // Fetch additional user info
+        try {
+          const userInfo = await authService.getUserInfo();
+          if (userInfo) {
+            setUser(prevUser => ({
+              ...prevUser!,
+              name: userInfo.name
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching user info:', error);
+        }
       }
     };
     
@@ -57,15 +86,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(user);
       setIsAuthenticated(true);
       setIsAdmin(user.roles.includes('Admin'));
+      
+      // Fetch additional user info
+      try {
+        const userInfo = await authService.getUserInfo();
+        if (userInfo) {
+          setUser(prevUser => ({
+            ...prevUser!,
+            name: userInfo.name
+          }));
+        }
+      } catch (infoError) {
+        console.error('Error fetching user info:', infoError);
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
   };
 
-  const register = async (email: string, password: string, confirmPassword: string) => {
+  const register = async (registerData: RegisterData) => {
     try {
-      await authService.register(email, password, confirmPassword);
+      await authService.register(registerData);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
