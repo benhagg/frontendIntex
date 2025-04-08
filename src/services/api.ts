@@ -58,6 +58,16 @@ export const authService = {
     return { token, user };
   },
   
+  getUserInfo: async () => {
+    try {
+      const response = await api.get('/auth/user-info');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      return null;
+    }
+  },
+  
   register: async (registerData: {
     email: string;
     password: string;
@@ -144,7 +154,7 @@ export const movieService = {
           title: movie.title,
           genre: getMainGenre(movie),
           description: movie.description,
-          imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available
+          imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available, ensuring it's properly encoded
           year: movie.releaseYear,
           director: movie.director,
           averageRating: avgRating
@@ -201,7 +211,7 @@ export const movieService = {
         title: movie.title,
         genre: getMainGenre(movie),
         description: movie.description,
-        imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`,
+        imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
         director: movie.director,
         averageRating: avgRating
@@ -215,7 +225,7 @@ export const movieService = {
         title: movie.title,
         genre: getMainGenre(movie),
         description: movie.description,
-        imageUrl: movie.imageUrl || `/images/${movie.showId}.jpg`,
+        imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
         director: movie.director,
         averageRating: 0

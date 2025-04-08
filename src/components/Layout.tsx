@@ -50,7 +50,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen flex flex-col ${
         darkMode ? "dark bg-gray-900 text-white" : "bg-white text-gray-900"
       }`}
     >
@@ -289,7 +289,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
       </Disclosure>
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-grow mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         {children}
       </main>
 

@@ -1,13 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 
 const Home: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
+  
   return (
     <Layout>
-      <div className="relative isolate px-6 pt-14 lg:px-8">
-        <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+      <div className="relative isolate px-6 pt-2 lg:px-8">
+        <div className="mx-auto max-w-2xl py-4 sm:py-6 lg:py-8">
           <div className="text-center">
+            {isAuthenticated && user?.name && (
+              <p className="text-xl font-medium text-blue-600 dark:text-blue-400 mb-2">
+                Welcome, {user.name}
+              </p>
+            )}
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Discover and Rate Your Favorite Movies
             </h1>
