@@ -248,7 +248,7 @@ export const movieService = {
       return {
         movieId: movie.showId,
         title: movie.title,
-        genre: getMainGenre(movie),
+        genre: movie.genre,
         description: movie.description,
         imageUrl: movie.imageUrl ? encodeURI(movie.imageUrl) : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
@@ -350,48 +350,39 @@ export const movieService = {
 };
 
 const genreMap: Record<string, string> = {
-  Action: "Action",
-  Adventure: "Adventure",
-  AnimeSeriesInternationalTVShows: "Anime Series International TV Shows",
-  BritishTVShowsDocuseriesInternationalTVShows:
+  action: "Action",
+  adventure: "Adventure",
+  animeSeriesInternationalTvShows: "Anime Series International TV Shows",
+  britishTvShowsDocuseriesInternationalTvShows:
     "British TV Shows Docuseries International TV Shows",
-  Children: "Children",
-  Comedy: "Comedy",
-  ComedyDramasInternationalMovies: "Comedy Dramas International Movies",
-  ComedyRomanticMovies: "Comedy Romantic Movies",
-  CrimeTVShowsDocuseries: "Crime TV Shows Docuseries",
-  Dcoumentaries: "Dcoumentaries",
-  DocumentariesInternationalMoves: "Documentaries International Moves",
-  Docuseries: "Docuseries",
-  Drama: "Drama",
-  DramaInternationalMovies: "Drama International Movies",
-  DramaRomanticMovies: "Drama Romantic Movies",
-  FamilyMovies: "Family Movies",
-  Fantasy: "Fantasy",
-  Horror: "Horror",
-  InternationalMoviesThrillers: "International Movies Thrillers",
-  InternationalTVShowsRomanticTVShowsTVDramas:
+  children: "Children",
+  comedy: "Comedy",
+  comedyDramasInternationalMovies: "Comedy Dramas International Movies",
+  comedyRomanticMovies: "Comedy Romantic Movies",
+  crimeTvShowsDocuseries: "Crime TV Shows Docuseries",
+  dcoumentaries: "Dcoumentaries",
+  documentariesInternationalMoves: "Documentaries International Moves",
+  docuseries: "Docuseries",
+  drama: "Drama",
+  dramaInternationalMovies: "Drama International Movies",
+  dramaRomanticMovies: "Drama Romantic Movies",
+  familyMovies: "Family Movies",
+  fantasy: "Fantasy",
+  horror: "Horror",
+  internationalMoviesThrillers: "International Movies Thrillers",
+  internationalTvShowsRomanticTvShowsTvDramas:
     "International TV Shows Romantic TV Shows TV Dramas",
-  KidsTV: "Kids' TV",
-  LanguageTVShows: "Language TV Shows",
-  Musicals: "Musicals",
-  NatureTV: "Nature TV",
-  RealityTV: "Reality TV",
-  Spirituality: "Spirituality",
-  TVAction: "TV Action",
-  TVComedies: "TV Comedies",
-  TVDramas: "TV Dramas",
-  TalkShowsTVComedies: "Talk Shows TV Comedies",
-  Thriller: "Thriller",
-};
-
-const getMainGenre = (movie: any): string => {
-  for (const key in genreMap) {
-    if (movie?.[key] === 1 || movie?.[key] === true) {
-      return genreMap[key];
-    }
-  }
-  return "Other";
+  kidsTv: "Kids' TV",
+  languageTvShows: "Language TV Shows",
+  musicals: "Musicals",
+  natureTv: "Nature TV",
+  realityTv: "Reality TV",
+  spirituality: "Spirituality",
+  tvAction: "TV Action",
+  tvComedies: "TV Comedies",
+  tvDramas: "TV Dramas",
+  talkShowsTvComedies: "Talk Shows TV Comedies",
+  thriller: "Thriller",
 };
 
 // Define the interface for the rating object
