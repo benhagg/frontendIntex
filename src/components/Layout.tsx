@@ -40,7 +40,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [darkMode]);
 
   const navigation = [
-    { name: "Home", href: "/", current: false },
     { name: "Movies", href: "/movies", current: false },
     { name: "Privacy", href: "/privacy", current: false },
   ];
@@ -66,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Link to="/" className="logo">
-                      <img src="./images/whitelogo.png" alt="logo" />
+                      <img src="/images/whitelogo.png" alt="logo" />
                     </Link>
                   </div>
                   <div className="hidden md:block">
