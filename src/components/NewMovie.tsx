@@ -34,16 +34,16 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
   const [genres, setGenres] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const genresResponse = await movieService.getGenres();
         setGenres(genresResponse);
-        
+
         const typesResponse = await movieService.getTypes();
         setTypes(typesResponse);
-        
+
         const countriesResponse = await movieService.getCountries();
         setCountries(countriesResponse);
       } catch (error) {
@@ -69,8 +69,6 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
       toast.error("Failed to create movie. Please try again.");
     }
   };
-
-  const [genres, setGenres] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchGenres = async () => {

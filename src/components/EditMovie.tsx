@@ -21,22 +21,23 @@ type MovieFormData = {
   director: string;
   cast: string;
   duration: string;
+  country: string; // Added country field
 };
 
 const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
   const [genres, setGenres] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const genresResponse = await movieService.getGenres();
         setGenres(genresResponse);
-        
+
         const typesResponse = await movieService.getTypes();
         setTypes(typesResponse);
-        
+
         const countriesResponse = await movieService.getCountries();
         setCountries(countriesResponse);
       } catch (error) {
@@ -52,8 +53,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<MovieFormData>();
-
-  const [genres, setGenres] = useState<string[]>([]);
 
   // fetch genres
   useEffect(() => {
@@ -83,6 +82,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         description: movie.description,
         cast: movie.cast,
         duration: movie.duration,
+        country: movie.country,
       });
     }
   }, [genres, movie, reset]);
@@ -161,7 +161,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                     {type}
                   </option>
                 ))}
-
               </select>
               {errors.type && (
                 <p className="mt-1 text-sm text-red-600">
