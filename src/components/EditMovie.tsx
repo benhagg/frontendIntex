@@ -62,48 +62,19 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
     // Handle both showId and movieId properties (API returns movieId but our type expects showId)
     const id = movie.showId || (movie as any).movieId || "";
     
-    // Wait for genres and types to be loaded before setting values
-    if (genres.length > 0 && types.length > 0) {
+    // Wait for types to be loaded before setting values
+    if (types.length > 0) {
       // Set initial values immediately
       setValue("showId", id);
       setValue("title", movie.title || "");
       setValue("type", movie.type || "Movie");
       
-      // Log the movie and genres for debugging
+      // Log the movie data for debugging
       console.log("Movie data:", movie);
-      console.log("Available genres:", genres);
+      console.log("Movie genre:", movie.genre);
       
-      // Normalize the genre name for comparison
-      const normalizeGenre = (genre: string) => genre.toLowerCase().replace(/\s+/g, '');
-      
-      // Get the movie's genre
-      const movieGenre = movie.genre || "";
-      console.log("Movie genre:", movieGenre);
-      
-      // Find the exact match first
-      if (genres.includes(movieGenre)) {
-        console.log("Exact genre match found:", movieGenre);
-        setValue("genre", movieGenre);
-      } else {
-        // If no exact match, try to find a similar one by normalizing
-        const normalizedMovieGenre = normalizeGenre(movieGenre);
-        
-        // Find the closest match by comparing normalized strings
-        const closestMatch = genres.find(g => {
-          const normalizedGenre = normalizeGenre(g);
-          return normalizedGenre.includes(normalizedMovieGenre) || 
-                 normalizedMovieGenre.includes(normalizedGenre);
-        });
-        
-        if (closestMatch) {
-          console.log("Similar genre match found:", closestMatch);
-          setValue("genre", closestMatch);
-        } else {
-          console.log("No genre match found, using first available genre");
-          // If no match found, default to the first genre in the list
-          setValue("genre", genres[0] || "");
-        }
-      }
+      // Set the genre value directly from the movie object
+      setValue("genre", movie.genre || "");
       
       setValue("releaseYear", movie.releaseYear || 2000);
       setValue("director", movie.director || "");
@@ -119,7 +90,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         title: movie.title,
         type: movie.type,
         genre: movie.genre,
-        genres,
         releaseYear: movie.releaseYear,
         director: movie.director,
         imageUrl: movie.imageUrl,
@@ -129,7 +99,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         country: movie.country,
       });
     }
-  }, [movie, setValue, genres, types]);
+  }, [movie, setValue, types]);
 
   const onSubmit = async (data: MovieFormData) => {
     // Handle both showId and movieId properties
@@ -159,12 +129,15 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
     });
 
     try {
-      await movieService.updateMovie(id, updatedMovie);
-      toast.success("Movie updated!");
+      // Use the movieService.updateMovie method
+      const result = await movieService.updateMovie(id, updatedMovie);
+      console.log("Update result:", result);
+      toast.success("Movie updated successfully!");
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update:", error);
-      toast.error("Failed to update movie.");
+      const errorMessage = error.response?.data?.message || "Failed to update movie.";
+      toast.error(errorMessage);
     }
   };
 
