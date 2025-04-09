@@ -21,6 +21,7 @@ type MovieFormData = {
   cast: string;
   duration: string;
   country: string;
+  rating: string;
 };
 
 const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
@@ -229,6 +230,33 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 {...register("country")}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
+            </div>
+
+            <div>
+              <label
+                htmlFor="rating"
+                className="block text-sm font-medium mb-1"
+              >
+                Rating (PG, PG-13, R, etc.)
+              </label>
+              <select
+                id="rating"
+                {...register("rating")}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select a rating</option>
+                <option value="G">G</option>
+                <option value="PG">PG</option>
+                <option value="PG-13">PG-13</option>
+                <option value="R">R</option>
+                <option value="NC-17">NC-17</option>
+                <option value="TV-Y">TV-Y</option>
+                <option value="TV-Y7">TV-Y7</option>
+                <option value="TV-G">TV-G</option>
+                <option value="TV-PG">TV-PG</option>
+                <option value="TV-14">TV-14</option>
+                <option value="TV-MA">TV-MA</option>
+              </select>
             </div>
 
             <div className="md:col-span-2">

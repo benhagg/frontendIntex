@@ -22,6 +22,7 @@ type MovieFormData = {
   cast: string;
   duration: string;
   country: string; // Added country field
+  rating: string; // Added rating field
 };
 
 const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
@@ -72,6 +73,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
       // Log the movie data for debugging
       console.log("Movie data:", movie);
       console.log("Movie genre:", movie.genre);
+      console.log("Movie rating:", movie.rating); // Debug log for rating
       
       // Set the genre value directly from the movie object
       setValue("genre", movie.genre || "");
@@ -83,6 +85,11 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
       setValue("cast", movie.cast || "");
       setValue("duration", movie.duration || "");
       setValue("country", movie.country || "");
+      
+      // Set the rating value and ensure it's a string
+      const ratingValue = movie.rating || "";
+      console.log("Setting rating value:", ratingValue); // Debug log for rating value
+      setValue("rating", ratingValue);
       
       // Log the values for debugging
       console.log("Setting form values:", {
@@ -97,6 +104,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         cast: movie.cast,
         duration: movie.duration,
         country: movie.country,
+        rating: ratingValue,
       });
     }
   }, [movie, setValue, types]);
@@ -298,6 +306,33 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 {...register("country")}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
+            </div>
+
+            <div>
+              <label
+                htmlFor="rating"
+                className="block text-sm font-medium mb-1"
+              >
+                Rating (PG, PG-13, R, etc.)
+              </label>
+              <select
+                id="rating"
+                {...register("rating")}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select a rating</option>
+                <option value="G">G</option>
+                <option value="PG">PG</option>
+                <option value="PG-13">PG-13</option>
+                <option value="R">R</option>
+                <option value="NC-17">NC-17</option>
+                <option value="TV-Y">TV-Y</option>
+                <option value="TV-Y7">TV-Y7</option>
+                <option value="TV-G">TV-G</option>
+                <option value="TV-PG">TV-PG</option>
+                <option value="TV-14">TV-14</option>
+                <option value="TV-MA">TV-MA</option>
+              </select>
             </div>
 
             <div className="md:col-span-2">

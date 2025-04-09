@@ -239,6 +239,10 @@ export const movieService = {
             director: movie.director,
             averageRating: avgRating,
             country: movie.country,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            rating: movie.rating || "",
           };
         } catch (error) {
           console.error(
@@ -257,6 +261,10 @@ export const movieService = {
             director: movie.director,
             averageRating: 0, // Default to 0 if ratings fetch fails
             country: movie.country,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            rating: movie.rating || "",
           };
         }
       })
@@ -326,6 +334,7 @@ export const movieService = {
             type: movie.type || "Movie",
             cast: movie.cast || "",
             duration: movie.duration || "",
+            rating: movie.rating || "",
           };
         } catch (error) {
           console.error(
@@ -345,6 +354,7 @@ export const movieService = {
             cast: movie.cast || "",
             duration: movie.duration || "",
             country: movie.country || "",
+            rating: movie.rating || "",
           };
         }
       })
@@ -362,6 +372,7 @@ export const movieService = {
   getMovie: async (id: string) => {
     const response = await api.get(`/movietitle/${id}`);
     const movie = response.data;
+    console.log("Raw response from backend:", response.data); // Debug log for raw response
 
     try {
       // Fetch ratings for this movie
@@ -409,6 +420,7 @@ export const movieService = {
         cast: movie.cast || "",
         duration: movie.duration || "",
         country: movie.country || "",
+        rating: movie.rating || "",
       };
     } catch (error) {
       console.error(`Error fetching ratings for movie ${movie.showId}:`, error);
@@ -436,6 +448,7 @@ export const movieService = {
         cast: movie.cast || "",
         duration: movie.duration || "",
         country: movie.country || "",
+        rating: movie.rating || "",
       };
     }
   },
@@ -468,7 +481,7 @@ export const movieService = {
       cast: movie.cast || "",
       country: movie.country || "",
       releaseYear: movie.releaseYear,
-      rating: "",
+      rating: movie.rating || "",
       duration: movie.duration || "",
       description: movie.description || "",
       // Initialize all genre fields to 0
@@ -529,6 +542,7 @@ export const movieService = {
         country: movie.country || existingData.country,
         imageUrl: movie.imageUrl || existingData.imageUrl,
         type: movie.type || existingData.type,
+        rating: movie.rating || existingData.rating,
       };
 
       // Update genre if provided
