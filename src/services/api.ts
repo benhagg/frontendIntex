@@ -397,17 +397,29 @@ export const movieService = {
         avgRating = 0;
       }
 
-      // Transform MovieTitle to match the expected Movie format
-      // Check if genre is available with capital G (from C# backend) or lowercase g
-      const genre = movie.Genre || movie.genre || "";
+      // Determine the genre based on the genre flags
+      let genre = movie.Genre || movie.genre || "";
+      
+      // If genre is not directly available, determine it from the genre flags
+      if (!genre) {
+        // Check each genre flag and use the first one that is set to 1 or true
+        if (movie.Action === 1 || movie.Action === true) genre = "Action";
+        else if (movie.Adventure === 1 || movie.Adventure === true) genre = "Adventure";
+        else if (movie.Comedies === 1 || movie.Comedies === true) genre = "Comedy";
+        else if (movie.Dramas === 1 || movie.Dramas === true) genre = "Drama";
+        else if (movie.HorrorMovies === 1 || movie.HorrorMovies === true) genre = "Horror";
+        else if (movie.Thrillers === 1 || movie.Thrillers === true) genre = "Thriller";
+        // Add more genre mappings as needed
+      }
+      
       console.log("Movie data from backend:", movie);
-      console.log("Genre value:", genre);
+      console.log("Determined genre value:", genre);
       
       return {
         movieId: movie.showId,
         showId: movie.showId,
         title: movie.title,
-        genre: genre, // Use the genre value we extracted
+        genre: genre, // Use the determined genre
         description: movie.description,
         imageUrl: movie.imageUrl
           ? encodeURI(movie.imageUrl)
