@@ -9,7 +9,6 @@ export interface Movie {
   director: string;
   cast: string;
   duration: string;
-  country: string;
   averageRating: number;
   country?: string;
 

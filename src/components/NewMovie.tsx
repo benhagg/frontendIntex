@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { Movie } from "../types/movies";
-import { addMovie } from "../services/api";
+import { addMovie, movieService } from "../services/api";
 import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 
 interface NewMovieFormProps {
   onSuccess: () => void;
@@ -40,6 +41,21 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
     reset();
     onSuccess();
   };
+
+  const [genres, setGenres] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await movieService.getGenres();
+        setGenres(response);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
 
   return (
     <>
@@ -86,12 +102,18 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
               <label htmlFor="genre" className="block text-sm font-medium mb-1">
                 Genre
               </label>
-              <input
+              <select
                 id="genre"
-                type="text"
                 {...register("genre", { required: "Genre is required" })}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
+              >
+                <option value="">Select a genre</option>
+                {genres.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </select>
               {errors.genre && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.genre.message}
@@ -242,3 +264,6 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
   );
 };
 export default NewMovieForm;
+function setGenres(response: any) {
+  throw new Error("Function not implemented.");
+}

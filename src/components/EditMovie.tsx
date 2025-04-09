@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { Movie } from "../types/movies";
-import { updateMovie } from "../services/api";
+import { movieService, updateMovie } from "../services/api";
 import { toast } from "react-toastify";
+import { useState, useEffect } from "react";
 
 interface EditMovieFormProps {
   movie: Movie;
@@ -27,28 +28,51 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm<MovieFormData>({
-    defaultValues: {
-      showId: movie.showId,
-      title: movie.title,
-      type: movie.type,
-      genre: movie.genre,
-      releaseYear: movie.releaseYear,
-      director: movie.director,
-      imageUrl: movie.imageUrl,
-      description: movie.description,
-      cast: movie.cast,
-      duration: movie.duration,
-      country: movie.country,
-    },
-  });
+  } = useForm<MovieFormData>();
+
+  const [genres, setGenres] = useState<string[]>([]);
+
+  // fetch genres
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await movieService.getGenres();
+        setGenres(response);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+  // reset form after genres are loaded
+  useEffect(() => {
+    if (genres.length > 0) {
+      reset({
+        showId: movie.showId,
+        title: movie.title,
+        type: movie.type,
+        genre: movie.genre,
+        releaseYear: movie.releaseYear,
+        director: movie.director,
+        imageUrl: movie.imageUrl,
+        description: movie.description,
+        cast: movie.cast,
+        duration: movie.duration,
+        country: movie.country,
+      });
+    }
+  }, [genres, movie, reset]);
 
   const onSubmit = async (data: MovieFormData) => {
     const updatedMovie: Movie = {
       ...movie,
       ...data,
     };
+
     await updateMovie(movie.showId, updatedMovie);
     onSuccess();
   };
@@ -98,12 +122,18 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
               <label htmlFor="genre" className="block text-sm font-medium mb-1">
                 Genre
               </label>
-              <input
+              <select
                 id="genre"
-                type="text"
                 {...register("genre", { required: "Genre is required" })}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
+              >
+                <option value="">Select a genre</option>
+                {genres.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </select>
               {errors.genre && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.genre.message}

@@ -8,7 +8,6 @@ import { Movie } from "../types/movies";
 import NewMovieForm from "../components/NewMovie";
 import EditMovie from "../components/EditMovie";
 
-
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin } = useAuth();
@@ -271,7 +270,6 @@ const Admin: React.FC = () => {
                   </tr>
                 ) : (
                   movies.map((movie) => (
-
                     <tr key={movie.showId}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {movie.title}
@@ -280,7 +278,7 @@ const Admin: React.FC = () => {
                         {movie.genre}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {movie.year}
+                        {movie.releaseYear}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {movie.averageRating.toFixed(1)}
