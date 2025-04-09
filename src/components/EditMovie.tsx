@@ -69,18 +69,40 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
       setValue("title", movie.title || "");
       setValue("type", movie.type || "Movie");
       
-      // Check if the movie's genre exists in the genres array
-      const genreExists = genres.includes(movie.genre);
-      if (genreExists) {
-        setValue("genre", movie.genre);
+      // Log the movie and genres for debugging
+      console.log("Movie data:", movie);
+      console.log("Available genres:", genres);
+      
+      // Normalize the genre name for comparison
+      const normalizeGenre = (genre: string) => genre.toLowerCase().replace(/\s+/g, '');
+      
+      // Get the movie's genre
+      const movieGenre = movie.genre || "";
+      console.log("Movie genre:", movieGenre);
+      
+      // Find the exact match first
+      if (genres.includes(movieGenre)) {
+        console.log("Exact genre match found:", movieGenre);
+        setValue("genre", movieGenre);
       } else {
-        // If the genre doesn't exist in the array, try to find a similar one
-        // For example, if the genre is "Comedy" but the array has "Comedies"
-        const similarGenre = genres.find(g => 
-          g.toLowerCase().includes(movie.genre?.toLowerCase() || "") || 
-          (movie.genre?.toLowerCase() || "").includes(g.toLowerCase())
-        );
-        setValue("genre", similarGenre || "");
+        // If no exact match, try to find a similar one by normalizing
+        const normalizedMovieGenre = normalizeGenre(movieGenre);
+        
+        // Find the closest match by comparing normalized strings
+        const closestMatch = genres.find(g => {
+          const normalizedGenre = normalizeGenre(g);
+          return normalizedGenre.includes(normalizedMovieGenre) || 
+                 normalizedMovieGenre.includes(normalizedGenre);
+        });
+        
+        if (closestMatch) {
+          console.log("Similar genre match found:", closestMatch);
+          setValue("genre", closestMatch);
+        } else {
+          console.log("No genre match found, using first available genre");
+          // If no match found, default to the first genre in the list
+          setValue("genre", genres[0] || "");
+        }
       }
       
       setValue("releaseYear", movie.releaseYear || 2000);
@@ -97,7 +119,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         title: movie.title,
         type: movie.type,
         genre: movie.genre,
-        genreExists,
         genres,
         releaseYear: movie.releaseYear,
         director: movie.director,
