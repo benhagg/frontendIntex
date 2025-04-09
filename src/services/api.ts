@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { Movie } from "../types/movies";
 // Helper to transform a raw movie object into the Movie type
 import { toMovie } from "../utils/toMovie";
+import { UserInfo } from "../types/userInfo";
 
 // Create axios instance with base URL
 // pulls from .env file (for development) or uses an Azure environment variable (for production)
@@ -123,6 +124,24 @@ export const authService = {
   isAdmin: () => {
     const user = authService.getCurrentUser();
     return user && user.roles && user.roles.includes("Admin");
+  },
+
+  updateUser: async (updatedUser: Partial<UserInfo>) => {
+    const response = await api.put("/auth/update", updatedUser);
+    return response.data;
+  },
+
+  changePassword: async (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ) => {
+    const response = await api.post("/auth/change-password", {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
   },
 };
 
@@ -303,7 +322,7 @@ export const movieService = {
       const genre = movie.Genre || movie.genre || "";
       console.log("Movie data from backend:", movie);
       console.log("Genre value:", genre);
-      
+
       return {
         movieId: movie.showId,
         showId: movie.showId,
@@ -330,7 +349,7 @@ export const movieService = {
       const genre = movie.Genre || movie.genre || "";
       console.log("Movie data from backend (error case):", movie);
       console.log("Genre value (error case):", genre);
-      
+
       return {
         movieId: movie.showId,
         showId: movie.showId,
@@ -389,7 +408,7 @@ export const movieService = {
       Comedies: 0,
       Dramas: 0,
       HorrorMovies: 0,
-      Thrillers: 0
+      Thrillers: 0,
     };
 
     // Set the appropriate genre field to 1 based on the genre
@@ -447,55 +466,61 @@ export const movieService = {
       if (movie.genre) {
         // Reset all genre fields
         // Get all genre fields from the existingData
-        const genreFields = Object.keys(existingData).filter(key => 
-          typeof existingData[key] === 'number' && 
-          key !== 'releaseYear' && 
-          key !== 'showId'
+        const genreFields = Object.keys(existingData).filter(
+          (key) =>
+            typeof existingData[key] === "number" &&
+            key !== "releaseYear" &&
+            key !== "showId"
         );
-        
+
         // Reset all genre fields to 0
-        genreFields.forEach(field => {
+        genreFields.forEach((field) => {
           updatedMovie[field] = 0;
         });
 
         // Set the appropriate genre field based on the genre map
         const genreMap: Record<string, string> = {
-          "Action": "Action",
-          "Adventure": "Adventure",
-          "Comedy": "Comedies",
-          "Drama": "Dramas",
-          "Horror": "HorrorMovies",
-          "Thriller": "Thrillers",
-          "Anime Series International TV Shows": "AnimeSeriesInternationalTVShows",
-          "British TV Shows Docuseries International TV Shows": "BritishTVShowsDocuseriesInternationalTVShows",
-          "Children": "Children",
-          "Comedy Dramas International Movies": "ComediesDramasInternationalMovies",
+          Action: "Action",
+          Adventure: "Adventure",
+          Comedy: "Comedies",
+          Drama: "Dramas",
+          Horror: "HorrorMovies",
+          Thriller: "Thrillers",
+          "Anime Series International TV Shows":
+            "AnimeSeriesInternationalTVShows",
+          "British TV Shows Docuseries International TV Shows":
+            "BritishTVShowsDocuseriesInternationalTVShows",
+          Children: "Children",
+          "Comedy Dramas International Movies":
+            "ComediesDramasInternationalMovies",
           "Comedy Romantic Movies": "ComediesRomanticMovies",
           "Crime TV Shows Docuseries": "CrimeTVShowsDocuseries",
-          "Documentaries": "Documentaries",
-          "Documentaries International Movies": "DocumentariesInternationalMovies",
-          "Docuseries": "Docuseries",
+          Documentaries: "Documentaries",
+          "Documentaries International Movies":
+            "DocumentariesInternationalMovies",
+          Docuseries: "Docuseries",
           "Drama International Movies": "DramasInternationalMovies",
           "Drama Romantic Movies": "DramasRomanticMovies",
           "Family Movies": "FamilyMovies",
-          "Fantasy": "Fantasy",
+          Fantasy: "Fantasy",
           "International Movies Thrillers": "InternationalMoviesThrillers",
-          "International TV Shows Romantic TV Shows TV Dramas": "InternationalTVShowsRomanticTVShowsTVDramas",
+          "International TV Shows Romantic TV Shows TV Dramas":
+            "InternationalTVShowsRomanticTVShowsTVDramas",
           "Kids' TV": "KidsTV",
           "Language TV Shows": "LanguageTVShows",
-          "Musicals": "Musicals",
+          Musicals: "Musicals",
           "Nature TV": "NatureTV",
           "Reality TV": "RealityTV",
-          "Spirituality": "Spirituality",
+          Spirituality: "Spirituality",
           "TV Action": "TVAction",
           "TV Comedies": "TVComedies",
           "TV Dramas": "TVDramas",
-          "Talk Shows TV Comedies": "TalkShowsTVComedies"
+          "Talk Shows TV Comedies": "TalkShowsTVComedies",
         };
 
         // Try to find the genre in the map (case-insensitive)
         let dbField = genreMap[movie.genre];
-        
+
         // If not found directly, try case-insensitive search
         if (!dbField) {
           const lowerCaseGenre = movie.genre.toLowerCase();
@@ -506,9 +531,11 @@ export const movieService = {
             }
           }
         }
-        
+
         if (dbField) {
-          console.log(`Setting genre field ${dbField} to 1 for genre ${movie.genre}`);
+          console.log(
+            `Setting genre field ${dbField} to 1 for genre ${movie.genre}`
+          );
           updatedMovie[dbField] = 1;
         } else {
           console.warn(`Unknown genre: ${movie.genre}`);

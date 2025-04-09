@@ -64,7 +64,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <Link to={isAuthenticated ? "/movies" : "/"} className="logo">
+                    <Link
+                      to={isAuthenticated ? "/movies" : "/"}
+                      className="logo"
+                    >
                       <img src="/images/whitelogo.png" alt="logo" />
                     </Link>
                   </div>
@@ -140,11 +143,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
+                          {/* My Profile Item */}
                           <Menu.Items
                             className={`absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${
                               darkMode ? "bg-gray-700" : "bg-white"
                             }`}
                           >
+                            {/* My Profile Item */}
+                            <Menu.Item>
+                              {() => (
+                                <Link
+                                  to="/profile"
+                                  className={`block px-4 py-2 text-sm ${
+                                    darkMode
+                                      ? "text-white hover:bg-gray-600"
+                                      : "text-gray-700 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  My Profile
+                                </Link>
+                              )}
+                            </Menu.Item>
                             <Menu.Item>
                               {() => (
                                 <button

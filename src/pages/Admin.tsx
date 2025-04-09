@@ -45,9 +45,7 @@ const Admin: React.FC = () => {
         searchTerm // pass searchTerm as the fourth parameter
       );
       setMovies(data.movies);
-      setTotalPages(
-        Math.ceil((data.totalPages || 0) / pageSize)
-      );
+      setTotalPages(Math.ceil((data.totalPages || 0) / pageSize));
     } catch (error) {
       console.error("Failed to load movies:", error);
       toast.error("Failed to load movies.");
@@ -134,7 +132,9 @@ const Admin: React.FC = () => {
   const handleEdit = async (movie: Movie) => {
     // Fetch the full movie data to ensure we have all fields
     try {
-      const fullMovieData = await movieService.getMovie(movie.showId.toString());
+      const fullMovieData = await movieService.getMovie(
+        movie.showId.toString()
+      );
       console.log("Full movie data for editing:", fullMovieData);
       setEditingMovie(fullMovieData);
       setShowForm(false);
