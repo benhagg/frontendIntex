@@ -41,7 +41,8 @@ const Admin: React.FC = () => {
       const data = await movieService.getMovies(
         currentPage,
         pageSize,
-        searchTerm
+        "", // genre parameter should be empty or undefined, not searchTerm
+        searchTerm // pass searchTerm as the fourth parameter
       );
       setMovies(data.movies || data.movies);
       setTotalPages(
