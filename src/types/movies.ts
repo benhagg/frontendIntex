@@ -11,7 +11,7 @@ export interface Movie {
   duration: string;
   country: string;
   averageRating: number;
-  country?: string;
+  
 
   // Genre flags
   Action?: boolean;
