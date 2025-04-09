@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { movieService } from "../services/api";
+import { movieService, updateMovie } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
 import { Movie } from "../types/movies";
 import NewMovieForm from "../components/NewMovie";
 import EditMovie from "../components/EditMovie";
-
+import EditMovieForm from "../components/EditMovie";
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
@@ -95,7 +95,7 @@ const Admin: React.FC = () => {
   const handleUpdate = async (data: Movie) => {
     setIsSubmitting(true);
     try {
-      await movieService.updateMovie(data.showId.toString(), data);
+      await updateMovie(data.showId, data);
       toast.success("Movie updated!");
       setEditingMovie(null);
       loadMovies();
@@ -163,9 +163,8 @@ const Admin: React.FC = () => {
         {showForm && (
           <NewMovieForm onSuccess={loadMovies} onCancel={handleCancel} />
         )}
-
         {editingMovie && (
-          <EditMovie
+          <EditMovieForm
             movie={editingMovie}
             onSuccess={loadMovies}
             onCancel={handleCancel}
@@ -271,7 +270,6 @@ const Admin: React.FC = () => {
                   </tr>
                 ) : (
                   movies.map((movie) => (
-
                     <tr key={movie.showId}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {movie.title}
@@ -280,16 +278,13 @@ const Admin: React.FC = () => {
                         {movie.genre}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {movie.year}
+                        {movie.releaseYear}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {movie.averageRating.toFixed(1)}
                       </td>
                       <td className="px-6 py-4 truncate text-sm">
                         {movie.director || "-"}
-                      </td>
-                      <td className="px-6 py-4 truncate text-sm">
-                        {movie.country || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button

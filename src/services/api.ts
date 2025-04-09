@@ -1,6 +1,8 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { Movie } from "../types/movies";
+// Helper to transform a raw movie object into the Movie type
+import { toMovie } from "../utils/toMovie";
 
 // Create axios instance with base URL
 // pulls from .env file (for development) or uses an Azure environment variable (for production)
@@ -129,42 +131,34 @@ export const movieService = {
   getUserRecommendations: async (userId: string) => {
     try {
       const response = await api.get(`/movies/user-recommendations/${userId}`);
-      
-      // Transform each recommendation category to match the expected Movie format
-      const transformRecommendations = (movies: any[]) => {
-        return movies.map((movie: any) => ({
-          movieId: movie.showId,
-          title: movie.title,
-          genre: movie.genre,
-          description: movie.description,
-          imageUrl: movie.imageUrl
-            ? encodeURI(movie.imageUrl)
-            : `/images/${movie.showId}.jpg`,
-          year: movie.releaseYear,
-          director: movie.director,
-          averageRating: 0, // We don't have ratings for recommendations yet
-          country: movie.country,
-        }));
-      };
-      
+
+      // Transform each recommendation category to match the expected Movie format (defined in toMovie.ts file)
+      const transformRecommendations = (movies: any[]) => movies.map(toMovie);
+
       return {
-        locationRecommendations: transformRecommendations(response.data.locationRecommendations || []),
-        basicRecommendations: transformRecommendations(response.data.basicRecommendations || []),
-        streamingRecommendations: transformRecommendations(response.data.streamingRecommendations || []),
+        locationRecommendations: transformRecommendations(
+          response.data.locationRecommendations || []
+        ),
+        basicRecommendations: transformRecommendations(
+          response.data.basicRecommendations || []
+        ),
+        streamingRecommendations: transformRecommendations(
+          response.data.streamingRecommendations || []
+        ),
       };
     } catch (error) {
       console.error("Error fetching user recommendations:", error);
       return {
         locationRecommendations: [],
         basicRecommendations: [],
-        streamingRecommendations: []
+        streamingRecommendations: [],
       };
     }
   },
-  
+
   getRecommendations: async (movieId: string) => {
     const response = await api.get(`/movies/${movieId}/recommendations`);
-    
+
     // Transform the response to match the expected Movie format
     const recommendedMovies = response.data.map((movie: any) => ({
       movieId: movie.showId,
@@ -566,7 +560,7 @@ export const addMovie = async (newMovie: Movie): Promise<Movie> => {
 
 // updating a movie
 export const updateMovie = async (
-  showId: number,
+  showId: string,
   updateMovie: Movie
 ): Promise<Movie> => {
   try {
