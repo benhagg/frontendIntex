@@ -132,19 +132,64 @@ export const movieService = {
     try {
       const response = await api.get(`/movies/user-recommendations/${userId}`);
 
-      // Transform each recommendation category to match the expected Movie format (defined in toMovie.ts file)
+      // Fetch ratings for each movie in each recommendation category
+      const fetchRatingsForMovies = async (movies: any[]) => {
+        return await Promise.all(
+          movies.map(async (movie: any) => {
+            try {
+              // Fetch ratings for this movie
+              const ratingsResponse = await api.get(
+                `/movierating/movie/${movie.showId}`
+              );
+              const ratings = ratingsResponse.data;
+
+              // Store ratings in the global store
+              window.movieRatings[movie.showId] = ratings;
+
+              // Calculate average rating
+              let avgRating = 0;
+              if (ratings.length > 0) {
+                const sum = ratings.reduce(
+                  (total: number, rating: MovieRatingItem) => total + rating.rating,
+                  0
+                );
+                avgRating = sum / ratings.length;
+              }
+
+              // Return the movie with the average rating
+              return {
+                ...movie,
+                averageRating: avgRating
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching ratings for recommended movie ${movie.showId}:`,
+                error
+              );
+              return movie; // Return the original movie if ratings fetch fails
+            }
+          })
+        );
+      };
+
+      // Process each recommendation category
+      const locationRecommendations = await fetchRatingsForMovies(
+        response.data.locationRecommendations || []
+      );
+      const basicRecommendations = await fetchRatingsForMovies(
+        response.data.basicRecommendations || []
+      );
+      const streamingRecommendations = await fetchRatingsForMovies(
+        response.data.streamingRecommendations || []
+      );
+
+      // Transform each recommendation category to match the expected Movie format
       const transformRecommendations = (movies: any[]) => movies.map(toMovie);
 
       return {
-        locationRecommendations: transformRecommendations(
-          response.data.locationRecommendations || []
-        ),
-        basicRecommendations: transformRecommendations(
-          response.data.basicRecommendations || []
-        ),
-        streamingRecommendations: transformRecommendations(
-          response.data.streamingRecommendations || []
-        ),
+        locationRecommendations: transformRecommendations(locationRecommendations),
+        basicRecommendations: transformRecommendations(basicRecommendations),
+        streamingRecommendations: transformRecommendations(streamingRecommendations),
       };
     } catch (error) {
       console.error("Error fetching user recommendations:", error);
@@ -159,20 +204,63 @@ export const movieService = {
   getRecommendations: async (movieId: string) => {
     const response = await api.get(`/movies/${movieId}/recommendations`);
 
-    // Transform the response to match the expected Movie format
-    const recommendedMovies = response.data.map((movie: any) => ({
-      movieId: movie.showId,
-      title: movie.title,
-      genre: movie.genre,
-      description: movie.description,
-      imageUrl: movie.imageUrl
-        ? encodeURI(movie.imageUrl)
-        : `/images/${movie.showId}.jpg`,
-      year: movie.releaseYear,
-      director: movie.director,
-      averageRating: 0, // We don't have ratings for recommendations yet
-      country: movie.country,
-    }));
+    // Transform the response to match the expected Movie format and fetch ratings
+    const recommendedMovies = await Promise.all(
+      response.data.map(async (movie: any) => {
+        try {
+          // Fetch ratings for this movie
+          const ratingsResponse = await api.get(
+            `/movierating/movie/${movie.showId}`
+          );
+          const ratings = ratingsResponse.data;
+
+          // Store ratings in the global store
+          window.movieRatings[movie.showId] = ratings;
+
+          // Calculate average rating
+          let avgRating = 0;
+          if (ratings.length > 0) {
+            const sum = ratings.reduce(
+              (total: number, rating: MovieRatingItem) => total + rating.rating,
+              0
+            );
+            avgRating = sum / ratings.length;
+          }
+
+          return {
+            movieId: movie.showId,
+            title: movie.title,
+            genre: movie.genre,
+            description: movie.description,
+            imageUrl: movie.imageUrl
+              ? encodeURI(movie.imageUrl)
+              : `/images/${movie.showId}.jpg`,
+            year: movie.releaseYear,
+            director: movie.director,
+            averageRating: avgRating,
+            country: movie.country,
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching ratings for recommended movie ${movie.showId}:`,
+            error
+          );
+          return {
+            movieId: movie.showId,
+            title: movie.title,
+            genre: movie.genre,
+            description: movie.description,
+            imageUrl: movie.imageUrl
+              ? encodeURI(movie.imageUrl)
+              : `/images/${movie.showId}.jpg`,
+            year: movie.releaseYear,
+            director: movie.director,
+            averageRating: 0, // Default to 0 if ratings fetch fails
+            country: movie.country,
+          };
+        }
+      })
+    );
 
     return recommendedMovies;
   },
