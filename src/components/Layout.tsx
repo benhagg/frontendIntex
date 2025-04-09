@@ -64,7 +64,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <Link to={isAuthenticated ? "/movies" : "/"} className="logo">
+                    <Link
+                      to={isAuthenticated ? "/movies" : "/"}
+                      className="logo"
+                    >
                       <img src="/images/whitelogo.png" alt="logo" />
                     </Link>
                   </div>
@@ -145,6 +148,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                               darkMode ? "bg-gray-700" : "bg-white"
                             }`}
                           >
+                            {/* My Reviews Link */}
+                            <Menu.Item>
+                              {() => (
+                                <Link
+                                  to={`/reviews/${user?.userId}`} // adjust key name if needed
+                                  className={`block px-4 py-2 text-sm ${
+                                    darkMode
+                                      ? "text-white hover:bg-gray-600"
+                                      : "text-gray-700 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  My Reviews
+                                </Link>
+                              )}
+                            </Menu.Item>
                             <Menu.Item>
                               {() => (
                                 <button

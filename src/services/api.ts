@@ -360,7 +360,7 @@ export const movieService = {
       Comedies: 0,
       Dramas: 0,
       HorrorMovies: 0,
-      Thrillers: 0
+      Thrillers: 0,
     };
 
     // Set the appropriate genre field to 1 based on the genre
@@ -615,3 +615,9 @@ export const updateMovie = async (
     throw error;
   }
 };
+
+export async function fetchUserReviews(userId: number) {
+  const res = await fetch(`${baseUrl}/MovieRating/user/${userId}`); // adjust the route if different
+  if (!res.ok) throw new Error("Failed to fetch reviews");
+  return res.json();
+}

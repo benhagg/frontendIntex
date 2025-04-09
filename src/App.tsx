@@ -13,6 +13,8 @@ import MovieDetail from "./pages/MovieDetail";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import CookieConsent from "react-cookie-consent";
+import UserReviewsWrapper from "./pages/UserReview";
+import UserReviews from "./components/myreviews";
 
 function App() {
   return (
@@ -29,6 +31,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/movies" element={<Movies />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
+            <Route path="/reviews" element={<UserReviews userId={0} />} />
           </Route>
 
           {/* Admin routes */}
