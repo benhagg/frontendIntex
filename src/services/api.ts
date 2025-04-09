@@ -299,11 +299,16 @@ export const movieService = {
       }
 
       // Transform MovieTitle to match the expected Movie format
+      // Check if genre is available with capital G (from C# backend) or lowercase g
+      const genre = movie.Genre || movie.genre || "";
+      console.log("Movie data from backend:", movie);
+      console.log("Genre value:", genre);
+      
       return {
         movieId: movie.showId,
         showId: movie.showId,
         title: movie.title,
-        genre: movie.genre,
+        genre: genre, // Use the genre value we extracted
         description: movie.description,
         imageUrl: movie.imageUrl
           ? encodeURI(movie.imageUrl)
@@ -321,11 +326,16 @@ export const movieService = {
       console.error(`Error fetching ratings for movie ${movie.showId}:`, error);
 
       // Transform MovieTitle to match the expected Movie format without ratings
+      // Check if genre is available with capital G (from C# backend) or lowercase g
+      const genre = movie.Genre || movie.genre || "";
+      console.log("Movie data from backend (error case):", movie);
+      console.log("Genre value (error case):", genre);
+      
       return {
         movieId: movie.showId,
         showId: movie.showId,
         title: movie.title,
-        genre: movie.genre,
+        genre: genre, // Use the genre value we extracted
         description: movie.description,
         imageUrl: movie.imageUrl
           ? encodeURI(movie.imageUrl)
@@ -483,11 +493,27 @@ export const movieService = {
           "Talk Shows TV Comedies": "TalkShowsTVComedies"
         };
 
-        const dbField = genreMap[movie.genre];
+        // Try to find the genre in the map (case-insensitive)
+        let dbField = genreMap[movie.genre];
+        
+        // If not found directly, try case-insensitive search
+        if (!dbField) {
+          const lowerCaseGenre = movie.genre.toLowerCase();
+          for (const [key, value] of Object.entries(genreMap)) {
+            if (key.toLowerCase() === lowerCaseGenre) {
+              dbField = value;
+              break;
+            }
+          }
+        }
+        
         if (dbField) {
+          console.log(`Setting genre field ${dbField} to 1 for genre ${movie.genre}`);
           updatedMovie[dbField] = 1;
         } else {
           console.warn(`Unknown genre: ${movie.genre}`);
+          // Default to Action if genre not found
+          updatedMovie.Action = 1;
         }
       }
 

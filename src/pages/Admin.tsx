@@ -44,11 +44,12 @@ const Admin: React.FC = () => {
         "", // genre parameter should be empty or undefined, not searchTerm
         searchTerm // pass searchTerm as the fourth parameter
       );
-      setMovies(data.movies || data.movies);
+      setMovies(data.movies);
       setTotalPages(
-        Math.ceil((data.totalPages || data.totalPages || 0) / pageSize)
+        Math.ceil((data.totalPages || 0) / pageSize)
       );
     } catch (error) {
+      console.error("Failed to load movies:", error);
       toast.error("Failed to load movies.");
     } finally {
       setIsLoading(false);
@@ -130,10 +131,18 @@ const Admin: React.FC = () => {
     setEditingMovie(null);
   };
 
-  const handleEdit = (movie: Movie) => {
-    setEditingMovie(movie);
-    setShowForm(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleEdit = async (movie: Movie) => {
+    // Fetch the full movie data to ensure we have all fields
+    try {
+      const fullMovieData = await movieService.getMovie(movie.showId.toString());
+      console.log("Full movie data for editing:", fullMovieData);
+      setEditingMovie(fullMovieData);
+      setShowForm(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Error fetching full movie data:", error);
+      toast.error("Failed to load movie details for editing.");
+    }
   };
 
   const handlePageChange = (page: number) => {
