@@ -1,6 +1,6 @@
 // UserReviews.tsx
 import React, { useEffect, useState } from "react";
-import { fetchUserReviews } from "../services/api";
+import { ratingService } from "../services/api";
 
 interface Movie {
   title: string;
@@ -18,7 +18,8 @@ export default function UserReviews({ userId }: { userId: number }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUserReviews(userId)
+    ratingService
+      .fetchUserReviews(userId)
       .then((data) => {
         setReviews(data);
         setLoading(false);

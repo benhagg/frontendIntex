@@ -149,7 +149,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             }`}
                           >
                             {/* My Reviews Link */}
-                            <Menu.Item>
+                            {/* <Menu.Item>
                               {() => (
                                 <Link
                                   to={`/reviews/${user?.userId}`} // adjust key name if needed
@@ -162,7 +162,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                                   My Reviews
                                 </Link>
                               )}
-                            </Menu.Item>
+                            </Menu.Item> */}
                             <Menu.Item>
                               {() => (
                                 <button

@@ -542,6 +542,12 @@ export const ratingService = {
     const response = await api.delete(`/movierating/single/${ratingId}`);
     return response.data;
   },
+
+  fetchUserReviews: async (userId: number) => {
+    const res = await fetch(`${baseUrl}/MovieRating/user/${userId}`); // adjust the route if different
+    if (!res.ok) throw new Error("Failed to fetch reviews");
+    return res.json();
+  },
 };
 
 // Privacy policy service
@@ -615,9 +621,3 @@ export const updateMovie = async (
     throw error;
   }
 };
-
-export async function fetchUserReviews(userId: number) {
-  const res = await fetch(`${baseUrl}/MovieRating/user/${userId}`); // adjust the route if different
-  if (!res.ok) throw new Error("Failed to fetch reviews");
-  return res.json();
-}
