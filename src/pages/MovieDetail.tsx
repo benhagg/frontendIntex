@@ -42,6 +42,8 @@ const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const location = window.location;
+  const fromTrending = new URLSearchParams(location.search).get('from') === 'trending';
   const [movie, setMovie] = useState<Movie | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [recommendations, setRecommendations] = useState<Movie[]>([]);
@@ -270,7 +272,7 @@ const MovieDetail: React.FC = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <button
-          onClick={() => navigate("/movies")}
+          onClick={() => navigate(fromTrending ? "/trending" : "/movies")}
           className="mb-4 flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         >
           <svg
@@ -287,7 +289,7 @@ const MovieDetail: React.FC = () => {
               d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
             />
           </svg>
-          Back to Movies
+          {fromTrending ? "Back to Trending Now" : "Back to Movies"}
         </button>
         <div className="flex flex-col md:flex-row gap-8">
           {/* Movie Image */}
@@ -647,7 +649,7 @@ const MovieDetail: React.FC = () => {
               {recommendations.map((rec) => (
                 <Link
                   key={rec.movieId}
-                  to={`/movies/${rec.movieId}`}
+                  to={`/movies/${rec.movieId}${fromTrending ? '?from=trending' : ''}`}
                   className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="h-48 bg-gray-200 dark:bg-gray-700 relative">

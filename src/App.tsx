@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Movies from "./pages/Movies";
 import MovieDetail from "./pages/MovieDetail";
+import TrendingNow from "./pages/TrendingNow";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import CookieConsent from "react-cookie-consent";
@@ -31,6 +32,7 @@ function App() {
             <Route path="/movies" element={<Movies />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/trending" element={<TrendingNow />} />
           </Route>
 
           {/* Admin routes */}

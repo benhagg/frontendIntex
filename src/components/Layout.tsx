@@ -41,6 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: "Movies", href: "/movies", current: false },
+    { name: "Trending Now", href: "/trending", current: false },
     { name: "Privacy", href: "/privacy", current: false },
   ];
 
