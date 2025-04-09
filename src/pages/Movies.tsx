@@ -223,7 +223,7 @@ const Movies: React.FC = () => {
   return (
     <Layout>
       <div className="w-full max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Movies</h1>
+        <h1 className="text-3xl font-bold mb-8">Recommended for You</h1>
 
         {/* User Recommendations Sections */}
         {authService.isAuthenticated() && (
@@ -414,6 +414,16 @@ const Movies: React.FC = () => {
             )}
           </>
         )}
+
+        <div>
+          <h2
+            className="text-2xl font-semibold mb-4"
+            style={{ fontSize: "40px" }}
+          >
+            {" "}
+            All Movies
+          </h2>
+        </div>
 
         <div className="flex flex-col md:flex-row justify-between mb-8 gap-4">
           <div className="w-full md:w-1/3">
