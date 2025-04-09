@@ -136,3 +136,13 @@ layout.css
   object-fit: contain;
   display: block;
 }
+.centered-banner {
+  color: white;
+  background-color: #287980;
+  width: 100%;
+  margin: 5px auto; /* centers horizontally */
+  text-align: center;
+  padding: 5px;
+  border-radius: 10px; /* optional rounded corners */
+  font-size: 2rem; /* optional for better visibility */
+}
