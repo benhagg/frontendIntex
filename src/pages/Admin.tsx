@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { movieService } from "../services/api";
+import { movieService, updateMovie } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
 import { Movie } from "../types/movies";
 import NewMovieForm from "../components/NewMovie";
 import EditMovie from "../components/EditMovie";
+import EditMovieForm from "../components/EditMovie";
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ const Admin: React.FC = () => {
   const handleUpdate = async (data: Movie) => {
     setIsSubmitting(true);
     try {
-      await movieService.updateMovie(data.showId.toString(), data);
+      await updateMovie(data.showId, data);
       toast.success("Movie updated!");
       setEditingMovie(null);
       loadMovies();
@@ -162,9 +163,8 @@ const Admin: React.FC = () => {
         {showForm && (
           <NewMovieForm onSuccess={loadMovies} onCancel={handleCancel} />
         )}
-
         {editingMovie && (
-          <EditMovie
+          <EditMovieForm
             movie={editingMovie}
             onSuccess={loadMovies}
             onCancel={handleCancel}

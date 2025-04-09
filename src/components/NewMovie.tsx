@@ -85,12 +85,15 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
               <label htmlFor="type" className="block text-sm font-medium mb-1">
                 Type
               </label>
-              <input
+              <select
                 id="type"
-                type="text"
                 {...register("type", { required: "Type is required" })}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
+              >
+                <option value="">Select a type</option>
+                <option value="Movie">Movie</option>
+                <option value="TV Show">TV Show</option>
+              </select>
               {errors.type && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.type.message}
