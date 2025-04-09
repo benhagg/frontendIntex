@@ -33,45 +33,6 @@ export default function UserProfile() {
     }
   };
 
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPasswordForm({ ...passwordForm, [name]: value });
-  };
-
-  const handlePasswordSubmit = async () => {
-    const { currentPassword, newPassword, confirmPassword } = passwordForm;
-
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
-
-    try {
-      await authService.changePassword(
-        currentPassword,
-        newPassword,
-        confirmPassword
-      );
-      toast.success("Password updated successfully!");
-      setShowChangePassword(false);
-      setPasswordForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (error) {
-      console.error("Password update failed:", error);
-      toast.error("Failed to update password.");
-    }
-  };
-
   if (!userInfo) return <div>Loading...</div>;
 
   const availableServices = [
@@ -244,48 +205,6 @@ export default function UserProfile() {
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
               Edit Profile
-            </button>
-          </div>
-        )}
-        <button
-          onClick={() => setShowChangePassword(!showChangePassword)}
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-          style={{ marginTop: "8px" }}
-        >
-          {showChangePassword ? "Cancel Password Change" : "Change Password"}
-        </button>
-
-        {showChangePassword && (
-          <div className="mt-4 space-y-3 border-t pt-4">
-            <input
-              type="password"
-              name="currentPassword"
-              placeholder="Current Password"
-              value={passwordForm.currentPassword}
-              onChange={handlePasswordChange}
-              className="w-full border rounded px-2 py-1"
-            />
-            <input
-              type="password"
-              name="newPassword"
-              placeholder="New Password"
-              value={passwordForm.newPassword}
-              onChange={handlePasswordChange}
-              className="w-full border rounded px-2 py-1"
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm New Password"
-              value={passwordForm.confirmPassword}
-              onChange={handlePasswordChange}
-              className="w-full border rounded px-2 py-1"
-            />
-            <button
-              onClick={handlePasswordSubmit}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              Update Password
             </button>
           </div>
         )}
