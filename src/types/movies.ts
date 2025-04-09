@@ -1,5 +1,5 @@
 export interface Movie {
-  showId: number;
+  showId: string;
   type: string;
   title: string;
   genre: string;
@@ -9,9 +9,8 @@ export interface Movie {
   director: string;
   cast: string;
   duration: string;
-  country: string;
   averageRating: number;
-  country?: string;
+  
 
   // Genre flags
   Action?: boolean;

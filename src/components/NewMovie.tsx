@@ -10,7 +10,7 @@ interface NewMovieFormProps {
 }
 
 type MovieFormData = {
-  showId: number;
+  showId: string;
   title: string;
   type: string;
   genre: string;
@@ -69,6 +69,21 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
       toast.error("Failed to create movie. Please try again.");
     }
   };
+
+  const [genres, setGenres] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await movieService.getGenres();
+        setGenres(response);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
 
   return (
     <>
@@ -283,3 +298,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
   );
 };
 export default NewMovieForm;
+function setGenres(response: any) {
+  response;
+  throw new Error("Function not implemented.");
+}

@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+.CookieConsent {
+  z-index: 9999 !important;
+  position: fixed !important;
+  bottom: 0;
+  width: 100%;
+}

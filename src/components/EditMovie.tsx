@@ -11,7 +11,7 @@ interface EditMovieFormProps {
 }
 
 type MovieFormData = {
-  showId: number;
+  showId: string;
   title: string;
   type: string;
   genre: string;
@@ -21,7 +21,6 @@ type MovieFormData = {
   director: string;
   cast: string;
   duration: string;
-  country: string;
 };
 
 const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
@@ -50,30 +49,76 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm<MovieFormData>({
-    defaultValues: {
-      showId: movie.showId,
-      title: movie.title,
-      type: movie.type,
-      genre: movie.genre,
-      releaseYear: movie.releaseYear,
-      director: movie.director,
-      imageUrl: movie.imageUrl,
-      description: movie.description,
-      cast: movie.cast,
-      duration: movie.duration,
-      country: movie.country,
-    },
-  });
+  } = useForm<MovieFormData>();
+
+  const [genres, setGenres] = useState<string[]>([]);
+
+  // fetch genres
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await movieService.getGenres();
+        setGenres(response);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+  // reset form after genres are loaded
+  useEffect(() => {
+    if (genres.length > 0) {
+      reset({
+        showId: movie.showId,
+        title: movie.title,
+        type: movie.type,
+        genre: movie.genre,
+        releaseYear: movie.releaseYear,
+        director: movie.director,
+        imageUrl: movie.imageUrl,
+        description: movie.description,
+        cast: movie.cast,
+        duration: movie.duration,
+      });
+    }
+  }, [genres, movie, reset]);
 
   const onSubmit = async (data: MovieFormData) => {
     const updatedMovie: Movie = {
       ...movie,
       ...data,
+      releaseYear: Number(data.releaseYear), // convert string to number
+      cast: data.cast || "", // ensure empty string instead of undefined
+      duration: data.duration || "",
+      director: data.director || "",
     };
-    await updateMovie(movie.showId, updatedMovie);
-    onSuccess();
+
+    const id = updatedMovie.showId?.toString();
+
+    if (!id) {
+      console.error("Missing showId:", updatedMovie);
+      toast.error("Missing Show ID. Cannot update movie.");
+      return;
+    }
+
+    // Log the data you're sending
+    console.log("Submitting update:", {
+      id,
+      updatedMovie,
+    });
+
+    try {
+      await updateMovie(id, updatedMovie);
+      toast.success("Movie updated!");
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to update:", error);
+      toast.error("Failed to update movie.");
+    }
   };
 
   return (
@@ -83,6 +128,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         <h2 className="text-xl font-semibold mb-4"></h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input value={movie.showId} type="hidden" {...register("showId")} />
             <div>
               <label htmlFor="title" className="block text-sm font-medium mb-1">
                 Title
@@ -115,6 +161,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                     {type}
                   </option>
                 ))}
+
               </select>
               {errors.type && (
                 <p className="mt-1 text-sm text-red-600">
@@ -219,7 +266,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
-
             <div>
               <label
                 htmlFor="country"

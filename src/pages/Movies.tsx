@@ -16,12 +16,17 @@ const Movies: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [, setTotalCount] = useState<number>(0);
   const searchTimeoutRef = useRef<number | null>(null);
-  
+
   // User recommendations state
-  const [locationRecommendations, setLocationRecommendations] = useState<Movie[]>([]);
+  const [locationRecommendations, setLocationRecommendations] = useState<
+    Movie[]
+  >([]);
   const [basicRecommendations, setBasicRecommendations] = useState<Movie[]>([]);
-  const [streamingRecommendations, setStreamingRecommendations] = useState<Movie[]>([]);
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState<boolean>(false);
+  const [streamingRecommendations, setStreamingRecommendations] = useState<
+    Movie[]
+  >([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState<boolean>(false);
 
   // Fetch user recommendations if user is logged in
   useEffect(() => {
@@ -29,32 +34,49 @@ const Movies: React.FC = () => {
       // Debug: Check if user is authenticated
       const isAuth = authService.isAuthenticated();
       console.log("User is authenticated:", isAuth);
-      
+
       if (isAuth) {
         try {
           setIsLoadingRecommendations(true);
           const user = authService.getCurrentUser();
-          
+
           // Debug: Check user object
           console.log("Current user:", user);
-          
+
           if (user && user.id) {
             console.log("Fetching recommendations for user ID:", user.id);
-            
+
             try {
-              const recommendations = await movieService.getUserRecommendations(user.id);
-              
+              const recommendations = await movieService.getUserRecommendations(
+                user.id
+              );
+
               // Debug: Check recommendations response
               console.log("Recommendations response:", recommendations);
-              
-              setLocationRecommendations(recommendations.locationRecommendations || []);
-              setBasicRecommendations(recommendations.basicRecommendations || []);
-              setStreamingRecommendations(recommendations.streamingRecommendations || []);
-              
+
+              setLocationRecommendations(
+                recommendations.locationRecommendations || []
+              );
+              setBasicRecommendations(
+                recommendations.basicRecommendations || []
+              );
+              setStreamingRecommendations(
+                recommendations.streamingRecommendations || []
+              );
+
               // Debug: Check if recommendations were set
-              console.log("Location recommendations count:", recommendations.locationRecommendations?.length || 0);
-              console.log("Basic recommendations count:", recommendations.basicRecommendations?.length || 0);
-              console.log("Streaming recommendations count:", recommendations.streamingRecommendations?.length || 0);
+              console.log(
+                "Location recommendations count:",
+                recommendations.locationRecommendations?.length || 0
+              );
+              console.log(
+                "Basic recommendations count:",
+                recommendations.basicRecommendations?.length || 0
+              );
+              console.log(
+                "Streaming recommendations count:",
+                recommendations.streamingRecommendations?.length || 0
+              );
             } catch (error: any) {
               console.error("API error fetching recommendations:", error);
               if (error.response) {
@@ -202,19 +224,22 @@ const Movies: React.FC = () => {
     <Layout>
       <div className="w-full max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Movies</h1>
-        
+
         {/* User Recommendations Sections */}
         {authService.isAuthenticated() && (
           <>
             {/* Location-based Recommendations */}
             {locationRecommendations.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Where did you come from, where did you go, we think you’ll really like these shows</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Where did you come from, where did you go, we think you’ll
+                  really like these shows
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                   {locationRecommendations.map((movie) => (
                     <Link
-                      key={movie.movieId}
-                      to={`/movies/${movie.movieId}`}
+                      key={movie.showId}
+                      to={`/movies/${movie.showId}`}
                       className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                     >
                       <div className="h-64 bg-gray-200 dark:bg-gray-700 relative">
@@ -243,7 +268,7 @@ const Movies: React.FC = () => {
                           </div>
                         )}
                         <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                          {movie.year}
+                          {movie.releaseYear}
                         </div>
                       </div>
                       <div className="p-4">
@@ -264,12 +289,14 @@ const Movies: React.FC = () => {
             {/* Basic Recommendations */}
             {basicRecommendations.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Picked just for you...</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Picked just for you...
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                   {basicRecommendations.map((movie) => (
                     <Link
-                      key={movie.movieId}
-                      to={`/movies/${movie.movieId}`}
+                      key={movie.showId}
+                      to={`/movies/${movie.showId}`}
                       className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                     >
                       <div className="h-64 bg-gray-200 dark:bg-gray-700 relative">
@@ -298,7 +325,7 @@ const Movies: React.FC = () => {
                           </div>
                         )}
                         <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                          {movie.year}
+                          {movie.releaseYear}
                         </div>
                       </div>
                       <div className="p-4">
@@ -319,12 +346,15 @@ const Movies: React.FC = () => {
             {/* Streaming Service Recommendations */}
             {streamingRecommendations.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Have you seen the new show? It’s on tubu. It’s literally on CineNiche</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Have you seen the new show? It’s on tubu. It’s literally on
+                  CineNiche
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                   {streamingRecommendations.map((movie) => (
                     <Link
-                      key={movie.movieId}
-                      to={`/movies/${movie.movieId}`}
+                      key={movie.showId}
+                      to={`/movies/${movie.showId}`}
                       className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                     >
                       <div className="h-64 bg-gray-200 dark:bg-gray-700 relative">
@@ -353,7 +383,7 @@ const Movies: React.FC = () => {
                           </div>
                         )}
                         <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                          {movie.year}
+                          {movie.releaseYear}
                         </div>
                       </div>
                       <div className="p-4">
@@ -374,7 +404,9 @@ const Movies: React.FC = () => {
             {/* Loading state for recommendations */}
             {isLoadingRecommendations && (
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Loading Recommendations...</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Loading Recommendations...
+                </h2>
                 <div className="flex justify-center items-center h-32">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                 </div>
@@ -471,8 +503,8 @@ const Movies: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {movies.map((movie) => (
                   <Link
-                    key={movie.movieId}
-                    to={`/movies/${movie.movieId}`}
+                    key={movie.showId}
+                    to={`/movies/${movie.showId}`}
                     className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                   >
                     <div className="h-64 bg-gray-200 dark:bg-gray-700 relative">
@@ -501,7 +533,7 @@ const Movies: React.FC = () => {
                         </div>
                       )}
                       <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                        {movie.year}
+                        {movie.releaseYear}
                       </div>
                     </div>
                     <div className="p-4">
