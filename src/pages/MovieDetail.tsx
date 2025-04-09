@@ -17,6 +17,10 @@ interface Movie {
   director: string;
   averageRating: number;
   country?: string;
+  type?: string;
+  cast?: string;
+  duration?: string;
+  rating?: string;
 }
 
 interface Rating {
@@ -64,6 +68,8 @@ const MovieDetail: React.FC = () => {
 
         // Use the new API service
         const movieData = await movieService.getMovie(id);
+        console.log("Movie data from API:", movieData); // Debug log to see if rating is present
+        console.log("Movie rating:", movieData.rating); // Debug log specifically for rating
         setMovie(movieData);
 
         const ratingsData = await ratingService.getRatingsByMovie(id);
@@ -333,12 +339,44 @@ const MovieDetail: React.FC = () => {
               </div>
             </div>
 
-            {movie.director && (
-              <p className="mb-4">
-                <span className="font-semibold">Director:</span>{" "}
-                {movie.director}
-              </p>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <p className="mb-2">
+                  <span className="font-semibold">Type:</span>{" "}
+                  {movie.type || "Movie"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Genre:</span>{" "}
+                  {movie.genre}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Release Year:</span>{" "}
+                  {movie.year}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Director:</span>{" "}
+                  {movie.director || "Unknown"}
+                </p>
+              </div>
+              <div>
+                <p className="mb-2">
+                  <span className="font-semibold">Cast:</span>{" "}
+                  {movie.cast || "Unknown"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Duration:</span>{" "}
+                  {movie.duration || "Unknown"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Country:</span>{" "}
+                  {movie.country || "Unknown"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Rating:</span>{" "}
+                  {movie.rating ? movie.rating : "Not Rated"}
+                </p>
+              </div>
+            </div>
 
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-2">Description</h2>

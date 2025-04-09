@@ -15,6 +15,7 @@ export const toMovie = (movie: any): Movie => ({
   cast: movie.cast || "Unknown",
   duration: movie.duration || "Unknown",
   averageRating: movie.averageRating ?? 0,
+  rating: movie.rating || "",
 
   // Genre flags (default to false if not present)
   Action: movie.Action ?? false,
