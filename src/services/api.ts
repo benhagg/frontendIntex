@@ -328,33 +328,70 @@ export const movieService = {
     return response.data;
   },
 
+  getTypes: async () => {
+    // Return only "Movie" and "TV Show" as options
+    return ["Movie", "TV Show"];
+  },
+
+  getCountries: async () => {
+    // Return an empty array since we're not using this anymore
+    return [];
+  },
+
   createMovie: async (movie: any) => {
     // Generate a unique ID for the movie if not provided
-    const showId = movie.movieId ? movie.movieId.toString() : `m${Date.now()}`;
+    const showId = movie.showId ? movie.showId.toString() : `m${Date.now()}`;
 
-    // Transform Movie to MovieTitle format
-    const movieTitle = {
+    // Transform Movie to MovieTitle format with genre fields
+    const movieTitle: Record<string, any> = {
       showId: showId,
-      type: "Movie",
+      type: movie.type || "Movie",
       title: movie.title,
       director: movie.director || "",
-      cast: "",
-      country: "",
-      releaseYear: movie.year,
+      cast: movie.cast || "",
+      country: movie.country || "",
+      releaseYear: movie.releaseYear,
       rating: "",
-      duration: "",
+      duration: movie.duration || "",
       description: movie.description || "",
-      // Set the appropriate genre field to 1
-      Action: movie.genre === "Action" ? 1 : 0,
-      Adventure: movie.genre === "Adventure" ? 1 : 0,
-      Comedies: movie.genre === "Comedy" ? 1 : 0,
-      Dramas: movie.genre === "Drama" ? 1 : 0,
-      HorrorMovies: movie.genre === "Horror" ? 1 : 0,
-      Thrillers: movie.genre === "Thriller" ? 1 : 0,
+      // Initialize all genre fields to 0
+      Action: 0,
+      Adventure: 0,
+      Comedies: 0,
+      Dramas: 0,
+      HorrorMovies: 0,
+      Thrillers: 0
     };
 
-    const response = await api.post("/movietitle", movieTitle);
-    return response.data;
+    // Set the appropriate genre field to 1 based on the genre
+    switch (movie.genre) {
+      case "Action":
+        movieTitle.Action = 1;
+        break;
+      case "Adventure":
+        movieTitle.Adventure = 1;
+        break;
+      case "Comedy":
+        movieTitle.Comedies = 1;
+        break;
+      case "Drama":
+        movieTitle.Dramas = 1;
+        break;
+      case "Horror":
+        movieTitle.HorrorMovies = 1;
+        break;
+      case "Thriller":
+        movieTitle.Thrillers = 1;
+        break;
+    }
+
+    try {
+      const response = await api.post("/movietitle", movieTitle);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating movie:", error);
+      throw error;
+    }
   },
 
   updateMovie: async (id: string, movie: any) => {

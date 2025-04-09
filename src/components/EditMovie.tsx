@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Movie } from "../types/movies";
-import { movieService, updateMovie } from "../services/api";
+import { updateMovie, movieService } from "../services/api";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 
@@ -24,6 +24,28 @@ type MovieFormData = {
 };
 
 const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
+  const [genres, setGenres] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const genresResponse = await movieService.getGenres();
+        setGenres(genresResponse);
+        
+        const typesResponse = await movieService.getTypes();
+        setTypes(typesResponse);
+        
+        const countriesResponse = await movieService.getCountries();
+        setCountries(countriesResponse);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -102,7 +124,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
   return (
     <>
       {/* Movie Form */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4"></h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -115,7 +137,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="title"
                 type="text"
                 {...register("title", { required: "Title is required" })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">
@@ -131,11 +153,15 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
               <select
                 id="type"
                 {...register("type", { required: "Type is required" })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">Select a type</option>
-                <option value="Movie">Movie</option>
-                <option value="TV Show">TV Show</option>
+                {types.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+
               </select>
               {errors.type && (
                 <p className="mt-1 text-sm text-red-600">
@@ -151,7 +177,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
               <select
                 id="genre"
                 {...register("genre", { required: "Genre is required" })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">Select a genre</option>
                 {genres.map((genre) => (
@@ -190,7 +216,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                     } or earlier`,
                   },
                 })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
               {errors.releaseYear && (
                 <p className="mt-1 text-sm text-red-600">
@@ -210,7 +236,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="director"
                 type="text"
                 {...register("director")}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -222,7 +248,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="cast"
                 type="text"
                 {...register("cast")}
-                className="block w-full rounded-md border-gray-300 shadow-sm ..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -237,7 +263,21 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="duration"
                 type="text"
                 {...register("duration")}
-                className="block w-full rounded-md border-gray-300 shadow-sm ..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="country"
+                className="block text-sm font-medium mb-1"
+              >
+                Country
+              </label>
+              <input
+                id="country"
+                type="text"
+                {...register("country")}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -252,7 +292,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="imageUrl"
                 type="text"
                 {...register("imageUrl")}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -267,7 +307,7 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="description"
                 rows={4}
                 {...register("description")}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               ></textarea>
             </div>
           </div>
