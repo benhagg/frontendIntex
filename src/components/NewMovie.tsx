@@ -24,6 +24,10 @@ type MovieFormData = {
 };
 
 const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
+  const [genres, setGenres] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -31,20 +35,18 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<MovieFormData>();
 
-  const [genres, setGenres] = useState<string[]>([]);
-  const [types, setTypes] = useState<string[]>([]);
-  const [countries, setCountries] = useState<string[]>([]);
-  
+  // Fetch all necessary data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const genresResponse = await movieService.getGenres();
+        const [genresResponse, typesResponse, countriesResponse] = await Promise.all([
+          movieService.getGenres(),
+          movieService.getTypes(),
+          movieService.getCountries()
+        ]);
+        
         setGenres(genresResponse);
-        
-        const typesResponse = await movieService.getTypes();
         setTypes(typesResponse);
-        
-        const countriesResponse = await movieService.getCountries();
         setCountries(countriesResponse);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -69,21 +71,6 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
       toast.error("Failed to create movie. Please try again.");
     }
   };
-
-  const [genres, setGenres] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const response = await movieService.getGenres();
-        setGenres(response);
-      } catch (error) {
-        console.error("Failed to fetch genres:", error);
-      }
-    };
-
-    fetchGenres();
-  }, []);
 
   return (
     <>
@@ -298,7 +285,3 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
   );
 };
 export default NewMovieForm;
-function setGenres(response: any) {
-  response;
-  throw new Error("Function not implemented.");
-}

@@ -224,17 +224,20 @@ export const movieService = {
           }
 
           return {
-            movieId: movie.showId,
+            showId: movie.showId,
             title: movie.title,
             genre: movie.genre,
             description: movie.description,
             imageUrl: movie.imageUrl
               ? encodeURI(movie.imageUrl)
               : `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available, ensuring it's properly encoded
-            year: movie.releaseYear,
+            releaseYear: movie.releaseYear,
             director: movie.director,
             averageRating: avgRating,
             country: movie.country,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
           };
         } catch (error) {
           console.error(
@@ -242,14 +245,18 @@ export const movieService = {
             error
           );
           return {
-            movieId: movie.showId,
+            showId: movie.showId,
             title: movie.title,
             genre: movie.genre,
             description: movie.description,
             imageUrl: `/images/${movie.showId}.jpg`,
-            year: movie.releaseYear,
+            releaseYear: movie.releaseYear,
             director: movie.director,
             averageRating: 0,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            country: movie.country || "",
           };
         }
       })
@@ -294,6 +301,7 @@ export const movieService = {
       // Transform MovieTitle to match the expected Movie format
       return {
         movieId: movie.showId,
+        showId: movie.showId,
         title: movie.title,
         genre: movie.genre,
         description: movie.description,
@@ -301,8 +309,13 @@ export const movieService = {
           ? encodeURI(movie.imageUrl)
           : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
+        releaseYear: movie.releaseYear,
         director: movie.director,
         averageRating: avgRating,
+        type: movie.type || "Movie",
+        cast: movie.cast || "",
+        duration: movie.duration || "",
+        country: movie.country || "",
       };
     } catch (error) {
       console.error(`Error fetching ratings for movie ${movie.showId}:`, error);
@@ -310,6 +323,7 @@ export const movieService = {
       // Transform MovieTitle to match the expected Movie format without ratings
       return {
         movieId: movie.showId,
+        showId: movie.showId,
         title: movie.title,
         genre: movie.genre,
         description: movie.description,
@@ -317,8 +331,13 @@ export const movieService = {
           ? encodeURI(movie.imageUrl)
           : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
+        releaseYear: movie.releaseYear,
         director: movie.director,
         averageRating: 0,
+        type: movie.type || "Movie",
+        cast: movie.cast || "",
+        duration: movie.duration || "",
+        country: movie.country || "",
       };
     }
   },
@@ -395,54 +414,90 @@ export const movieService = {
   },
 
   updateMovie: async (id: string, movie: any) => {
-    // Get the existing movie to preserve genre values
-    const existingMovie = await api.get(`/movietitle/${id}`);
-    const existingData = existingMovie.data;
+    try {
+      // Get the existing movie to preserve genre values
+      const existingMovie = await api.get(`/movietitle/${id}`);
+      const existingData = existingMovie.data;
 
-    // Update only the fields that are provided
-    const updatedMovie = {
-      ...existingData,
-      title: movie.title || existingData.title,
-      director: movie.director || existingData.director,
-      releaseYear: movie.year || existingData.releaseYear,
-      description: movie.description || existingData.description,
-    };
+      // Update only the fields that are provided
+      const updatedMovie = {
+        ...existingData,
+        title: movie.title || existingData.title,
+        director: movie.director || existingData.director,
+        releaseYear: movie.releaseYear || existingData.releaseYear,
+        description: movie.description || existingData.description,
+        cast: movie.cast || existingData.cast,
+        duration: movie.duration || existingData.duration,
+        country: movie.country || existingData.country,
+        imageUrl: movie.imageUrl || existingData.imageUrl,
+        type: movie.type || existingData.type,
+      };
 
-    // Update genre if provided
-    if (movie.genre) {
-      // Reset all genre fields
-      updatedMovie.Action = 0;
-      updatedMovie.Adventure = 0;
-      updatedMovie.Comedies = 0;
-      updatedMovie.Dramas = 0;
-      updatedMovie.HorrorMovies = 0;
-      updatedMovie.Thrillers = 0;
+      // Update genre if provided
+      if (movie.genre) {
+        // Reset all genre fields
+        // Get all genre fields from the existingData
+        const genreFields = Object.keys(existingData).filter(key => 
+          typeof existingData[key] === 'number' && 
+          key !== 'releaseYear' && 
+          key !== 'showId'
+        );
+        
+        // Reset all genre fields to 0
+        genreFields.forEach(field => {
+          updatedMovie[field] = 0;
+        });
 
-      // Set the appropriate genre field
-      switch (movie.genre) {
-        case "Action":
-          updatedMovie.Action = 1;
-          break;
-        case "Adventure":
-          updatedMovie.Adventure = 1;
-          break;
-        case "Comedy":
-          updatedMovie.Comedies = 1;
-          break;
-        case "Drama":
-          updatedMovie.Dramas = 1;
-          break;
-        case "Horror":
-          updatedMovie.HorrorMovies = 1;
-          break;
-        case "Thriller":
-          updatedMovie.Thrillers = 1;
-          break;
+        // Set the appropriate genre field based on the genre map
+        const genreMap: Record<string, string> = {
+          "Action": "Action",
+          "Adventure": "Adventure",
+          "Comedy": "Comedies",
+          "Drama": "Dramas",
+          "Horror": "HorrorMovies",
+          "Thriller": "Thrillers",
+          "Anime Series International TV Shows": "AnimeSeriesInternationalTVShows",
+          "British TV Shows Docuseries International TV Shows": "BritishTVShowsDocuseriesInternationalTVShows",
+          "Children": "Children",
+          "Comedy Dramas International Movies": "ComediesDramasInternationalMovies",
+          "Comedy Romantic Movies": "ComediesRomanticMovies",
+          "Crime TV Shows Docuseries": "CrimeTVShowsDocuseries",
+          "Documentaries": "Documentaries",
+          "Documentaries International Movies": "DocumentariesInternationalMovies",
+          "Docuseries": "Docuseries",
+          "Drama International Movies": "DramasInternationalMovies",
+          "Drama Romantic Movies": "DramasRomanticMovies",
+          "Family Movies": "FamilyMovies",
+          "Fantasy": "Fantasy",
+          "International Movies Thrillers": "InternationalMoviesThrillers",
+          "International TV Shows Romantic TV Shows TV Dramas": "InternationalTVShowsRomanticTVShowsTVDramas",
+          "Kids' TV": "KidsTV",
+          "Language TV Shows": "LanguageTVShows",
+          "Musicals": "Musicals",
+          "Nature TV": "NatureTV",
+          "Reality TV": "RealityTV",
+          "Spirituality": "Spirituality",
+          "TV Action": "TVAction",
+          "TV Comedies": "TVComedies",
+          "TV Dramas": "TVDramas",
+          "Talk Shows TV Comedies": "TalkShowsTVComedies"
+        };
+
+        const dbField = genreMap[movie.genre];
+        if (dbField) {
+          updatedMovie[dbField] = 1;
+        } else {
+          console.warn(`Unknown genre: ${movie.genre}`);
+        }
       }
-    }
 
-    const response = await api.put(`/movietitle/${id}`, updatedMovie);
-    return response.data;
+      console.log("Sending updated movie to server:", updatedMovie);
+      const response = await api.put(`/movietitle/${id}`, updatedMovie);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating movie:", error);
+      throw error;
+    }
   },
 
   deleteMovie: async (id: string) => {
@@ -601,7 +656,7 @@ export const updateMovie = async (
   updateMovie: Movie
 ): Promise<Movie> => {
   try {
-    const response = await fetch(`${baseUrl}/UpdateBook/${showId}`, {
+    const response = await fetch(`${baseUrl}/movietitle/${showId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { movieService, updateMovie } from "../services/api";
+import { movieService } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
@@ -96,7 +96,7 @@ const Admin: React.FC = () => {
   const handleUpdate = async (data: Movie) => {
     setIsSubmitting(true);
     try {
-      await updateMovie(data.showId, data);
+      await movieService.updateMovie(data.showId, data);
       toast.success("Movie updated!");
       setEditingMovie(null);
       loadMovies();
@@ -272,7 +272,7 @@ const Admin: React.FC = () => {
                 ) : (
                   movies.map((movie) => (
                     <tr key={movie.showId}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 truncate text-sm font-medium">
                         {movie.title}
                       </td>
                       <td className="px-6 py-4 truncate text-sm">
