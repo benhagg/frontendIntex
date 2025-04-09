@@ -560,7 +560,7 @@ export const addMovie = async (newMovie: Movie): Promise<Movie> => {
 
 // updating a movie
 export const updateMovie = async (
-  showId: number,
+  showId: string,
   updateMovie: Movie
 ): Promise<Movie> => {
   try {

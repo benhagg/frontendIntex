@@ -21,7 +21,6 @@ type MovieFormData = {
   director: string;
   cast: string;
   duration: string;
-  country: string;
 };
 
 const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
@@ -62,7 +61,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
         description: movie.description,
         cast: movie.cast,
         duration: movie.duration,
-        country: movie.country,
       });
     }
   }, [genres, movie, reset]);
@@ -239,21 +237,6 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
                 id="duration"
                 type="text"
                 {...register("duration")}
-                className="block w-full rounded-md border-gray-300 shadow-sm ..."
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="country"
-                className="block text-sm font-medium mb-1"
-              >
-                Country
-              </label>
-              <input
-                id="country"
-                type="text"
-                {...register("country")}
                 className="block w-full rounded-md border-gray-300 shadow-sm ..."
               />
             </div>

@@ -10,7 +10,7 @@ interface NewMovieFormProps {
 }
 
 type MovieFormData = {
-  showId: number;
+  showId: string;
   title: string;
   type: string;
   genre: string;
@@ -268,5 +268,6 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
 };
 export default NewMovieForm;
 function setGenres(response: any) {
+  response;
   throw new Error("Function not implemented.");
 }

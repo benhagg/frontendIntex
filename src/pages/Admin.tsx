@@ -9,7 +9,6 @@ import NewMovieForm from "../components/NewMovie";
 import EditMovie from "../components/EditMovie";
 import EditMovieForm from "../components/EditMovie";
 
-
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin } = useAuth();
@@ -286,9 +285,6 @@ const Admin: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 truncate text-sm">
                         {movie.director || "-"}
-                      </td>
-                      <td className="px-6 py-4 truncate text-sm">
-                        {movie.country || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
