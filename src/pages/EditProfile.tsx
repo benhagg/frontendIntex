@@ -3,7 +3,6 @@ import { authService } from "../services/api";
 import Layout from "../components/Layout";
 import { UserInfo } from "../types/userInfo";
 import { toast, ToastContainer } from "react-toastify";
-import { USStateAbbreviation } from "../types/locations";
 
 export default function UserProfile() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
