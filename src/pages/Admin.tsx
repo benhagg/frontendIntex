@@ -1,55 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { movieService } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
-import { useForm } from "react-hook-form";
 import Layout from "../components/Layout";
+import { Movie } from "../types/movies";
+import NewMovieForm from "../components/NewMovie";
+import EditMovie from "../components/EditMovie";
 
-interface Movie {
-  movieId: number;
-  title: string;
-  genre: string;
-  description: string;
-  imageUrl: string;
-  year: number;
-  director: string;
-  averageRating: number;
-}
-
-interface MovieFormData {
-  title: string;
-  genre: string;
-  description: string;
-  imageUrl: string;
-  year: number;
-  director: string;
-}
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin } = useAuth();
+
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [showForm, setShowForm] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const searchTimeoutRef = React.useRef<number | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<MovieFormData>();
+  const searchTimeoutRef = useRef<number | null>(null);
 
-  // Check if user is admin, if not redirect to home
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || !isAdmin)) {
       toast.error("You do not have permission to access this page.");
@@ -57,90 +35,75 @@ const Admin: React.FC = () => {
     }
   }, [isAuthenticated, isAdmin, isLoading, navigate]);
 
-  // Fetch movies
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await movieService.getMovies(
-          currentPage,
-          pageSize,
-          undefined,
-          searchTerm
-        );
-        setMovies(response.movies);
-        setTotalPages(response.totalPages);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-        toast.error("Failed to load movies. Please try again later.");
-        setIsLoading(false);
-      }
-    };
+  const loadMovies = async () => {
+    setIsLoading(true);
+    try {
+      const data = await movieService.getMovies(
+        currentPage,
+        pageSize,
+        searchTerm
+      );
+      setMovies(data.movies || data.movies);
+      setTotalPages(
+        Math.ceil((data.totalPages || data.totalPages || 0) / pageSize)
+      );
+    } catch (error) {
+      toast.error("Failed to load movies.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (isAuthenticated && isAdmin) {
-      fetchMovies();
+      loadMovies();
     }
   }, [isAuthenticated, isAdmin, currentPage, pageSize, searchTerm]);
 
-  // Handle search input change with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-
-    // Clear any existing timeout
     if (searchTimeoutRef.current) {
-      window.clearTimeout(searchTimeoutRef.current);
+      clearTimeout(searchTimeoutRef.current);
     }
-
-    // Set a new timeout to update search after typing stops
     searchTimeoutRef.current = window.setTimeout(() => {
-      setCurrentPage(1); // Reset to first page when searching
-    }, 500); // 500ms debounce
+      setCurrentPage(1);
+    }, 500);
   };
 
-  const onSubmit = async (data: MovieFormData) => {
-    if (!isAuthenticated || !isAdmin) {
-      toast.error("You do not have permission to perform this action.");
-      return;
-    }
-
+  const handleCreate = async (
+    data: Omit<Movie, "showId" | "averageRating" | "type">
+  ) => {
     setIsSubmitting(true);
     try {
-      if (editingMovie) {
-        // Update existing movie
-        await movieService.updateMovie(editingMovie.movieId.toString(), data);
-        toast.success("Movie updated successfully!");
-      } else {
-        // Create new movie
-        await movieService.createMovie(data);
-        toast.success("Movie created successfully!");
-      }
-
-      // Refresh movies list
-      const response = await movieService.getMovies(currentPage, pageSize);
-      setMovies(response.movies);
-      setTotalPages(response.totalPages);
-
-      // Reset form
-      reset();
-      setEditingMovie(null);
-    } catch (error) {
-      console.error("Error saving movie:", error);
-      toast.error("Failed to save movie. Please try again later.");
+      await movieService.createMovie({
+        ...data,
+        showId: 0,
+        type: "Movie",
+        averageRating: 0,
+      });
+      toast.success("Movie created!");
+      setShowForm(false);
+      loadMovies();
+    } catch {
+      toast.error("Failed to create movie.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleEdit = (movie: Movie) => {
-    setEditingMovie(movie);
-    setValue("title", movie.title);
-    setValue("genre", movie.genre);
-    setValue("description", movie.description || "");
-    setValue("imageUrl", movie.imageUrl || "");
-    setValue("year", movie.year);
-    setValue("director", movie.director || "");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleUpdate = async (data: Movie) => {
+    setIsSubmitting(true);
+    try {
+      await movieService.updateMovie(data.showId.toString(), data);
+      toast.success("Movie updated!");
+      setEditingMovie(null);
+      loadMovies();
+    } catch {
+      toast.error("Failed to update movie.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = (movie: Movie) => {
@@ -149,205 +112,65 @@ const Admin: React.FC = () => {
   };
 
   const confirmDelete = async () => {
-    if (!movieToDelete || !isAuthenticated || !isAdmin) return;
-
+    if (!movieToDelete) return;
     try {
-      await movieService.deleteMovie(movieToDelete.movieId.toString());
-
-      // Refresh movies list
-      const response = await movieService.getMovies(currentPage, pageSize);
-      setMovies(response.movies);
-      setTotalPages(response.totalPages);
-
-      toast.success("Movie deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting movie:", error);
-      toast.error("Failed to delete movie. Please try again later.");
-    } finally {
-      setShowDeleteModal(false);
+      await movieService.deleteMovie(movieToDelete.showId.toString());
+      toast.success("Movie deleted!");
       setMovieToDelete(null);
+      setShowDeleteModal(false);
+      loadMovies();
+    } catch {
+      toast.error("Failed to delete movie.");
     }
   };
 
   const handleCancel = () => {
+    setShowForm(false);
     setEditingMovie(null);
-    reset();
   };
 
-  const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    setCurrentPage(newPage);
+  const handleEdit = (movie: Movie) => {
+    setEditingMovie(movie);
+    setShowForm(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
   };
 
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPageSize(parseInt(e.target.value));
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full max-w-7xl mx-auto py-8">
         <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
-        {/* Movie Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">
-            {editingMovie ? "Edit Movie" : "Add New Movie"}
-          </h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Title *
-                </label>
-                <input
-                  id="title"
-                  type="text"
-                  {...register("title", { required: "Title is required" })}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-                {errors.title && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.title.message}
-                  </p>
-                )}
-              </div>
+        {!showForm && !editingMovie && (
+          <button
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            onClick={() => setShowForm(true)}
+          >
+            Add Movie
+          </button>
+        )}
+        <br />
 
-              <div>
-                <label
-                  htmlFor="genre"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Genre *
-                </label>
-                <input
-                  id="genre"
-                  type="text"
-                  {...register("genre", { required: "Genre is required" })}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-                {errors.genre && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.genre.message}
-                  </p>
-                )}
-              </div>
+        {showForm && (
+          <NewMovieForm onSuccess={loadMovies} onCancel={handleCancel} />
+        )}
 
-              <div>
-                <label
-                  htmlFor="year"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Year *
-                </label>
-                <input
-                  id="year"
-                  type="number"
-                  {...register("year", {
-                    required: "Year is required",
-                    min: {
-                      value: 1888,
-                      message: "Year must be 1888 or later",
-                    },
-                    max: {
-                      value: new Date().getFullYear() + 5,
-                      message: `Year must be ${
-                        new Date().getFullYear() + 5
-                      } or earlier`,
-                    },
-                  })}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-                {errors.year && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.year.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="director"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Director
-                </label>
-                <input
-                  id="director"
-                  type="text"
-                  {...register("director")}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="imageUrl"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Image URL
-                </label>
-                <input
-                  id="imageUrl"
-                  type="text"
-                  {...register("imageUrl")}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  rows={4}
-                  {...register("description")}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                ></textarea>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-4 pt-4">
-              {editingMovie && (
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Cancel
-                </button>
-              )}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isSubmitting
-                  ? "Saving..."
-                  : editingMovie
-                  ? "Update Movie"
-                  : "Add Movie"}
-              </button>
-            </div>
-          </form>
-        </div>
+        {editingMovie && (
+          <EditMovie
+            movie={editingMovie}
+            onSuccess={loadMovies}
+            onCancel={handleCancel}
+          />
+        )}
 
         {/* Movies Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
@@ -392,36 +215,48 @@ const Admin: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table className="w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/4"
                   >
                     Title
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/6"
                   >
                     Genre
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/12"
                   >
                     Year
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/12"
                   >
                     Rating
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/6"
+                  >
+                    Director
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/6"
+                  >
+                    Country
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider w-1/12"
                   >
                     Actions
                   </th>
@@ -436,11 +271,12 @@ const Admin: React.FC = () => {
                   </tr>
                 ) : (
                   movies.map((movie) => (
-                    <tr key={movie.movieId}>
+
+                    <tr key={movie.showId}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {movie.title}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-6 py-4 truncate text-sm">
                         {movie.genre}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -448,6 +284,12 @@ const Admin: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {movie.averageRating.toFixed(1)}
+                      </td>
+                      <td className="px-6 py-4 truncate text-sm">
+                        {movie.director || "-"}
+                      </td>
+                      <td className="px-6 py-4 truncate text-sm">
+                        {movie.country || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
