@@ -9,6 +9,7 @@ import NewMovieForm from "../components/NewMovie";
 import EditMovie from "../components/EditMovie";
 import EditMovieForm from "../components/EditMovie";
 
+
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin } = useAuth();
