@@ -3,6 +3,7 @@ import { authService } from "../services/api";
 import Layout from "../components/Layout";
 import { UserInfo } from "../types/userInfo";
 import { toast, ToastContainer } from "react-toastify";
+import { USStateAbbreviation } from "../types/locations";
 
 export default function UserProfile() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -18,9 +19,26 @@ export default function UserProfile() {
     fetchUser();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     if (!formData) return;
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const { name, value } = e.target;
+
+    if (name === "age") {
+      const numericValue = parseInt(value);
+      if (isNaN(numericValue) || numericValue < 0 || numericValue > 120) {
+        toast.error("Please enter a valid age between 0 and 120.");
+        return;
+      }
+      setFormData({ ...formData, age: numericValue.toString() });
+    } else if (name === "phone") {
+      const rawDigits = value.replace(/\D/g, ""); // just numbers
+      setFormData({ ...formData, phone: rawDigits });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSave = async () => {
@@ -31,6 +49,20 @@ export default function UserProfile() {
     } catch (error) {
       console.error("Failed to update user:", error);
     }
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+
+    if (digitsOnly.length === 0) return ""; // Don't show anything if no digits
+
+    const part1 = digitsOnly.slice(0, 3);
+    const part2 = digitsOnly.slice(3, 6);
+    const part3 = digitsOnly.slice(6, 10);
+
+    if (digitsOnly.length < 4) return `(${part1}`;
+    if (digitsOnly.length < 7) return `(${part1}) ${part2}`;
+    return `(${part1}) ${part2} - ${part3}`;
   };
 
   if (!userInfo) return <div>Loading...</div>;
@@ -89,7 +121,7 @@ export default function UserProfile() {
               <input
                 type="text"
                 name="phone"
-                value={formData?.phone || ""}
+                value={formatPhoneNumber(formData?.phone || "")}
                 onChange={handleChange}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
@@ -108,7 +140,7 @@ export default function UserProfile() {
               State:
               <input
                 type="text"
-                name="city"
+                name="state"
                 value={formData?.state || ""}
                 onChange={handleChange}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -118,11 +150,36 @@ export default function UserProfile() {
               Zip:
               <input
                 type="text"
-                name="city"
+                name="zip"
                 value={formData?.zip || ""}
                 onChange={handleChange}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
+            </label>
+            <label className="block">
+              Age:
+              <input
+                type="number"
+                name="age"
+                value={formData?.age || ""}
+                onChange={handleChange}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </label>
+            <label className="block">
+              Gender:
+              <select
+                name="gender"
+                value={formData?.gender || ""}
+                onChange={handleChange}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white mt-1"
+              >
+                <option value="">Select an option</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Non-Binary">Non-Binary</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
             </label>
             <label className="block mb-2">Services:</label>
             <div className="grid grid-cols-2 gap-2 mb-4">
