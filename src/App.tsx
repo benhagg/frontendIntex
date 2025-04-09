@@ -13,6 +13,7 @@ import MovieDetail from "./pages/MovieDetail";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import CookieConsent from "react-cookie-consent";
+import UserProfile from "./pages/EditProfile";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/movies" element={<Movies />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
+            <Route path="/profile" element={<UserProfile />} />
           </Route>
 
           {/* Admin routes */}
