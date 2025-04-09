@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { Movie } from "../types/movies";
-import { addMovie } from "../services/api";
+import { movieService } from "../services/api";
 import { toast } from "react-toastify";
+import { useState, useEffect } from "react";
 
 interface NewMovieFormProps {
   onSuccess: () => void;
@@ -30,21 +31,49 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<MovieFormData>();
 
-  const onSubmit = async (data: MovieFormData) => {
-    const newMovie: Movie = {
-      averageRating: 0,
-      ...data,
+  const [genres, setGenres] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const genresResponse = await movieService.getGenres();
+        setGenres(genresResponse);
+        
+        const typesResponse = await movieService.getTypes();
+        setTypes(typesResponse);
+        
+        const countriesResponse = await movieService.getCountries();
+        setCountries(countriesResponse);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
     };
+    fetchData();
+  }, []);
 
-    await addMovie(newMovie);
-    reset();
-    onSuccess();
+  const onSubmit = async (data: MovieFormData) => {
+    try {
+      const newMovie: Movie = {
+        ...data,
+        averageRating: 0,
+      };
+
+      await movieService.createMovie(newMovie);
+      toast.success("Movie created successfully!");
+      reset();
+      onSuccess();
+    } catch (error) {
+      console.error("Error creating movie:", error);
+      toast.error("Failed to create movie. Please try again.");
+    }
   };
 
   return (
     <>
       {/* Movie Form */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4"></h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -56,7 +85,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="title"
                 type="text"
                 {...register("title", { required: "Title is required" })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">
@@ -69,12 +98,18 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
               <label htmlFor="type" className="block text-sm font-medium mb-1">
                 Type
               </label>
-              <input
+              <select
                 id="type"
-                type="text"
                 {...register("type", { required: "Type is required" })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select a type</option>
+                {types.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
               {errors.type && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.type.message}
@@ -86,12 +121,18 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
               <label htmlFor="genre" className="block text-sm font-medium mb-1">
                 Genre
               </label>
-              <input
+              <select
                 id="genre"
-                type="text"
                 {...register("genre", { required: "Genre is required" })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select a genre</option>
+                {genres.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </select>
               {errors.genre && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.genre.message}
@@ -122,7 +163,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                     } or earlier`,
                   },
                 })}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
               {errors.releaseYear && (
                 <p className="mt-1 text-sm text-red-600">
@@ -142,7 +183,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="director"
                 type="text"
                 {...register("director")}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -154,7 +195,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="cast"
                 type="text"
                 {...register("cast")}
-                className="block w-full rounded-md border-gray-300 shadow-sm ..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -169,7 +210,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="duration"
                 type="text"
                 {...register("duration")}
-                className="block w-full rounded-md border-gray-300 shadow-sm ..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -184,7 +225,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="country"
                 type="text"
                 {...register("country")}
-                className="block w-full rounded-md border-gray-300 shadow-sm ..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -199,7 +240,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="imageUrl"
                 type="text"
                 {...register("imageUrl")}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -214,7 +255,7 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
                 id="description"
                 rows={4}
                 {...register("description")}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               ></textarea>
             </div>
           </div>
