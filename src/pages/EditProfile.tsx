@@ -3,6 +3,7 @@ import { authService } from "../services/api";
 import Layout from "../components/Layout";
 import { UserInfo } from "../types/userInfo";
 import { toast, ToastContainer } from "react-toastify";
+import { sanitizeInput } from "../utils/securityUtils";
 
 export default function UserProfile() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -36,7 +37,9 @@ export default function UserProfile() {
       const rawDigits = value.replace(/\D/g, ""); // just numbers
       setFormData({ ...formData, phone: rawDigits });
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData({ ...formData, [name]: sanitizeInput(value) });
+      console.log("Value", value);
+      console.log("Sanitized Value", sanitizeInput(value));
     }
   };
 
