@@ -150,6 +150,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                               darkMode ? "bg-gray-700" : "bg-white"
                             }`}
                           >
+                            {/* My Reviews Link */}
+                            {/* <Menu.Item>
+                              {() => (
+                                <Link
+                                  to={`/reviews/${user?.userId}`} // adjust key name if needed
                             {/* My Profile Item */}
                             <Menu.Item>
                               {() => (
@@ -161,6 +166,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                                       : "text-gray-700 hover:bg-gray-100"
                                   }`}
                                 >
+                                  My Reviews
+                                </Link>
+                              )}
+                            </Menu.Item> */}
                                   My Profile
                                 </Link>
                               )}
