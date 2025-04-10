@@ -5,8 +5,10 @@ import { toast } from "react-toastify";
 import Layout from "../components/Layout";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Movie } from "../types/movies";
+import { useAuth } from "../contexts/AuthContext";
 
 const Movies: React.FC = () => {
+  const { kidsMode, kidsModeTimestamp } = useAuth();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [genres, setGenres] = useState<string[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>("");
@@ -48,7 +50,8 @@ const Movies: React.FC = () => {
 
             try {
               const recommendations = await movieService.getUserRecommendations(
-                user.id
+                user.id,
+                kidsMode
               );
 
               // Debug: Check recommendations response
@@ -98,7 +101,7 @@ const Movies: React.FC = () => {
     };
 
     fetchUserRecommendations();
-  }, []);
+  }, [kidsModeTimestamp]); // Refetch recommendations when kidsMode changes
 
   const fetchMovies = async (reset = false) => {
     try {
@@ -107,7 +110,8 @@ const Movies: React.FC = () => {
         currentPage,
         10,
         selectedGenre,
-        searchTerm
+        searchTerm,
+        kidsMode
       );
 
       const { movies: fetchedMovies, totalCount } = response;
@@ -157,6 +161,13 @@ const Movies: React.FC = () => {
       fetchMovies(true);
     }
   }, [selectedGenre]);
+
+  // Add a useEffect to watch for kidsMode changes using the timestamp
+  useEffect(() => {
+    // Refetch movies when kidsMode changes (tracked by kidsModeTimestamp)
+    setPage(1);
+    fetchMovies(true);
+  }, [kidsModeTimestamp]);
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newGenre = e.target.value;

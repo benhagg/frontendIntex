@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { authService } from '../services/api';
 
 interface User {
@@ -6,6 +6,8 @@ interface User {
   email: string;
   roles: string[];
   name?: string;
+  age?: number;
+  enforceKidsMode?: boolean;
 }
 
 interface RegisterData {
@@ -27,6 +29,10 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  enforceKidsMode: boolean;
+  kidsMode: boolean;
+  kidsModeTimestamp: number;
+  toggleKidsMode: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (registerData: RegisterData) => Promise<void>;
   logout: () => void;
@@ -50,6 +56,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [enforceKidsMode, setEnforceKidsMode] = useState<boolean>(false);
+  const [kidsMode, setKidsMode] = useState<boolean>(() => {
+    // Initialize from localStorage, defaulting to enforceKidsMode if it's true
+    return localStorage.getItem("kidsMode") === "true" || false;
+  });
+  // Add a timestamp to track when kidsMode changes
+  const [kidsModeTimestamp, setKidsModeTimestamp] = useState<number>(Date.now());
 
   useEffect(() => {
     // Check if user is already logged in
@@ -68,8 +81,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (userInfo) {
             setUser(prevUser => ({
               ...prevUser!,
-              name: userInfo.name
+              name: userInfo.name,
+              age: userInfo.age,
+              enforceKidsMode: userInfo.enforceKidsMode
             }));
+            
+            // Set enforceKidsMode state based on user info
+            const isEnforced = userInfo.enforceKidsMode || false;
+            setEnforceKidsMode(isEnforced);
+            
+            // If kids mode is enforced, make sure kidsMode is also set to true
+            if (isEnforced) {
+              setKidsMode(true);
+              localStorage.setItem("kidsMode", "true");
+            }
           }
         } catch (error) {
           console.error('Error fetching user info:', error);
@@ -79,6 +104,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     checkAuth();
   }, []);
+
+  const toggleKidsMode = useCallback(() => {
+    // Only allow toggling if not enforced
+    if (!enforceKidsMode) {
+      const newMode = !kidsMode;
+      setKidsMode(newMode);
+      localStorage.setItem("kidsMode", newMode.toString());
+      // Update timestamp to trigger refetch in components that depend on kidsMode
+      setKidsModeTimestamp(Date.now());
+    }
+  }, [enforceKidsMode, kidsMode]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -93,8 +129,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (userInfo) {
           setUser(prevUser => ({
             ...prevUser!,
-            name: userInfo.name
+            name: userInfo.name,
+            age: userInfo.age,
+            enforceKidsMode: userInfo.enforceKidsMode
           }));
+          
+          // Set enforceKidsMode state based on user info
+          const isEnforced = userInfo.enforceKidsMode || false;
+          setEnforceKidsMode(isEnforced);
+          
+          // If kids mode is enforced, make sure kidsMode is also set to true
+          if (isEnforced) {
+            setKidsMode(true);
+            localStorage.setItem("kidsMode", "true");
+          }
         }
       } catch (infoError) {
         console.error('Error fetching user info:', infoError);
@@ -125,6 +173,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     isAuthenticated,
     isAdmin,
+    enforceKidsMode,
+    kidsMode,
+    kidsModeTimestamp,
+    toggleKidsMode,
     login,
     register,
     logout

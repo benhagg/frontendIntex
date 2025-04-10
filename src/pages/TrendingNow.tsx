@@ -4,8 +4,10 @@ import Layout from "../components/Layout";
 import { Movie } from "../types/movies";
 import { movieService } from "../services/api";
 import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 
 const TrendingNow: React.FC = () => {
+  const { kidsMode, kidsModeTimestamp } = useAuth();
   const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -36,7 +38,7 @@ const TrendingNow: React.FC = () => {
 
         // Fetch actual movie data for each unique ID
         const moviePromises = Array.from(uniqueMovieIds).map(id => 
-          movieService.getMovie(id).catch(error => {
+          movieService.getMovie(id, kidsMode).catch(error => {
             console.error(`Error fetching movie ${id}:`, error);
             return null;
           })
@@ -57,7 +59,7 @@ const TrendingNow: React.FC = () => {
     };
 
     fetchTrendingMovies();
-  }, []);
+  }, [kidsModeTimestamp]);
 
   const renderRatingStars = (rating: number) => {
     const fullStars = Math.floor(rating);

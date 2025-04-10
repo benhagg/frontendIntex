@@ -41,7 +41,7 @@ interface RatingFormData {
 const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, kidsMode, kidsModeTimestamp } = useAuth();
   const location = window.location;
   const fromTrending = new URLSearchParams(location.search).get('from') === 'trending';
   const [movie, setMovie] = useState<Movie | null>(null);
@@ -112,7 +112,7 @@ const MovieDetail: React.FC = () => {
         if (!id) return;
 
         setIsLoadingRecommendations(true);
-        const recommendedMovies = await movieService.getRecommendations(id);
+        const recommendedMovies = await movieService.getRecommendations(id, kidsMode);
         setRecommendations(recommendedMovies);
         setIsLoadingRecommendations(false);
       } catch (error) {
@@ -124,7 +124,7 @@ const MovieDetail: React.FC = () => {
     if (!isLoading && movie) {
       fetchRecommendations();
     }
-  }, [id, isLoading, movie]);
+  }, [id, isLoading, movie, kidsModeTimestamp]);
 
   const onSubmitRating = async (data: RatingFormData) => {
     if (!isAuthenticated) {
