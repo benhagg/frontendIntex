@@ -112,7 +112,7 @@ const TrendingNow: React.FC = () => {
   return (
     <Layout>
       <div className="w-full max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">🔥 HOTTEST 19 Movies In The World 🔥</h1>
+        <h1 className="text-3xl font-bold mb-8">🔥 HOTTEST 19 Titles In The World 🔥</h1>
 
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
