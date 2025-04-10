@@ -307,13 +307,13 @@ const Register: React.FC = () => {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 15,
-                    message: "Password must be at least 15 characters",
-                  },
-                })}
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 15,
+                  message: "Password must be at least 15 characters",
+                },
+              })}
                 className="w-full border rounded p-2 pr-10 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
               />
               <button
