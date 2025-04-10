@@ -21,9 +21,14 @@ type MovieFormData = {
   cast: string;
   duration: string;
   country: string;
+  rating: string;
 };
 
 const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
+  const [genres, setGenres] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -31,20 +36,18 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<MovieFormData>();
 
-  const [genres, setGenres] = useState<string[]>([]);
-  const [types, setTypes] = useState<string[]>([]);
-  const [countries, setCountries] = useState<string[]>([]);
-
+  // Fetch all necessary data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const genresResponse = await movieService.getGenres();
+        const [genresResponse, typesResponse, countriesResponse] = await Promise.all([
+          movieService.getGenres(),
+          movieService.getTypes(),
+          movieService.getCountries()
+        ]);
+        
         setGenres(genresResponse);
-
-        const typesResponse = await movieService.getTypes();
         setTypes(typesResponse);
-
-        const countriesResponse = await movieService.getCountries();
         setCountries(countriesResponse);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -69,19 +72,6 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
       toast.error("Failed to create movie. Please try again.");
     }
   };
-
-  useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const response = await movieService.getGenres();
-        setGenres(response);
-      } catch (error) {
-        console.error("Failed to fetch genres:", error);
-      }
-    };
-
-    fetchGenres();
-  }, []);
 
   return (
     <>
@@ -242,6 +232,33 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="rating"
+                className="block text-sm font-medium mb-1"
+              >
+                Rating (PG, PG-13, R, etc.)
+              </label>
+              <select
+                id="rating"
+                {...register("rating")}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select a rating</option>
+                <option value="G">G</option>
+                <option value="PG">PG</option>
+                <option value="PG-13">PG-13</option>
+                <option value="R">R</option>
+                <option value="NC-17">NC-17</option>
+                <option value="TV-Y">TV-Y</option>
+                <option value="TV-Y7">TV-Y7</option>
+                <option value="TV-G">TV-G</option>
+                <option value="TV-PG">TV-PG</option>
+                <option value="TV-14">TV-14</option>
+                <option value="TV-MA">TV-MA</option>
+              </select>
+            </div>
+
             <div className="md:col-span-2">
               <label
                 htmlFor="imageUrl"
@@ -296,7 +313,3 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
   );
 };
 export default NewMovieForm;
-function setGenres(response: any) {
-  response;
-  throw new Error("Function not implemented.");
-}

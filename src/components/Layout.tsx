@@ -41,6 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: "Movies", href: "/movies", current: false },
+    { name: "Trending Now", href: "/trending", current: false },
     { name: "Privacy", href: "/privacy", current: false },
   ];
 
@@ -143,6 +144,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
+                          {/* My Profile Item */}
                           <Menu.Items
                             className={`absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${
                               darkMode ? "bg-gray-700" : "bg-white"
@@ -153,6 +155,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                               {() => (
                                 <Link
                                   to={`/reviews/${user?.userId}`} // adjust key name if needed
+                            {/* My Profile Item */}
+                            <Menu.Item>
+                              {() => (
+                                <Link
+                                  to="/profile"
                                   className={`block px-4 py-2 text-sm ${
                                     darkMode
                                       ? "text-white hover:bg-gray-600"
@@ -163,6 +170,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                                 </Link>
                               )}
                             </Menu.Item> */}
+                                  My Profile
+                                </Link>
+                              )}
+                            </Menu.Item>
                             <Menu.Item>
                               {() => (
                                 <button

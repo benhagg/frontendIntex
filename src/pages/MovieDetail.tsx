@@ -17,6 +17,10 @@ interface Movie {
   director: string;
   averageRating: number;
   country?: string;
+  type?: string;
+  cast?: string;
+  duration?: string;
+  rating?: string;
 }
 
 interface Rating {
@@ -38,6 +42,8 @@ const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const location = window.location;
+  const fromTrending = new URLSearchParams(location.search).get('from') === 'trending';
   const [movie, setMovie] = useState<Movie | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [recommendations, setRecommendations] = useState<Movie[]>([]);
@@ -64,6 +70,8 @@ const MovieDetail: React.FC = () => {
 
         // Use the new API service
         const movieData = await movieService.getMovie(id);
+        console.log("Movie data from API:", movieData); // Debug log to see if rating is present
+        console.log("Movie rating:", movieData.rating); // Debug log specifically for rating
         setMovie(movieData);
 
         const ratingsData = await ratingService.getRatingsByMovie(id);
@@ -264,7 +272,7 @@ const MovieDetail: React.FC = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <button
-          onClick={() => navigate("/movies")}
+          onClick={() => navigate(fromTrending ? "/trending" : "/movies")}
           className="mb-4 flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         >
           <svg
@@ -281,7 +289,7 @@ const MovieDetail: React.FC = () => {
               d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
             />
           </svg>
-          Back to Movies
+          {fromTrending ? "Back to Trending Now" : "Back to Movies"}
         </button>
         <div className="flex flex-col md:flex-row gap-8">
           {/* Movie Image */}
@@ -333,12 +341,44 @@ const MovieDetail: React.FC = () => {
               </div>
             </div>
 
-            {movie.director && (
-              <p className="mb-4">
-                <span className="font-semibold">Director:</span>{" "}
-                {movie.director}
-              </p>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <p className="mb-2">
+                  <span className="font-semibold">Type:</span>{" "}
+                  {movie.type || "Movie"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Genre:</span>{" "}
+                  {movie.genre}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Release Year:</span>{" "}
+                  {movie.year}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Director:</span>{" "}
+                  {movie.director || "Unknown"}
+                </p>
+              </div>
+              <div>
+                <p className="mb-2">
+                  <span className="font-semibold">Cast:</span>{" "}
+                  {movie.cast || "Unknown"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Duration:</span>{" "}
+                  {movie.duration || "Unknown"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Country:</span>{" "}
+                  {movie.country || "Unknown"}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Rating:</span>{" "}
+                  {movie.rating ? movie.rating : "Not Rated"}
+                </p>
+              </div>
+            </div>
 
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-2">Description</h2>
@@ -609,7 +649,7 @@ const MovieDetail: React.FC = () => {
               {recommendations.map((rec) => (
                 <Link
                   key={rec.movieId}
-                  to={`/movies/${rec.movieId}`}
+                  to={`/movies/${rec.movieId}${fromTrending ? '?from=trending' : ''}`}
                   className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="h-48 bg-gray-200 dark:bg-gray-700 relative">

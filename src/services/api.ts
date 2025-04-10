@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { Movie } from "../types/movies";
 // Helper to transform a raw movie object into the Movie type
 import { toMovie } from "../utils/toMovie";
+import { UserInfo } from "../types/userInfo";
 
 // Create axios instance with base URL
 // pulls from .env file (for development) or uses an Azure environment variable (for production)
@@ -124,6 +125,24 @@ export const authService = {
     const user = authService.getCurrentUser();
     return user && user.roles && user.roles.includes("Admin");
   },
+
+  updateUser: async (updatedUser: Partial<UserInfo>) => {
+    const response = await api.put("/auth/update", updatedUser);
+    return response.data;
+  },
+
+  changePassword: async (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ) => {
+    const response = await api.post("/auth/change-password", {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  },
 };
 
 // Movie services (using the new MovieTitle table)
@@ -132,19 +151,64 @@ export const movieService = {
     try {
       const response = await api.get(`/movies/user-recommendations/${userId}`);
 
-      // Transform each recommendation category to match the expected Movie format (defined in toMovie.ts file)
+      // Fetch ratings for each movie in each recommendation category
+      const fetchRatingsForMovies = async (movies: any[]) => {
+        return await Promise.all(
+          movies.map(async (movie: any) => {
+            try {
+              // Fetch ratings for this movie
+              const ratingsResponse = await api.get(
+                `/movierating/movie/${movie.showId}`
+              );
+              const ratings = ratingsResponse.data;
+
+              // Store ratings in the global store
+              window.movieRatings[movie.showId] = ratings;
+
+              // Calculate average rating
+              let avgRating = 0;
+              if (ratings.length > 0) {
+                const sum = ratings.reduce(
+                  (total: number, rating: MovieRatingItem) => total + rating.rating,
+                  0
+                );
+                avgRating = sum / ratings.length;
+              }
+
+              // Return the movie with the average rating
+              return {
+                ...movie,
+                averageRating: avgRating
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching ratings for recommended movie ${movie.showId}:`,
+                error
+              );
+              return movie; // Return the original movie if ratings fetch fails
+            }
+          })
+        );
+      };
+
+      // Process each recommendation category
+      const locationRecommendations = await fetchRatingsForMovies(
+        response.data.locationRecommendations || []
+      );
+      const basicRecommendations = await fetchRatingsForMovies(
+        response.data.basicRecommendations || []
+      );
+      const streamingRecommendations = await fetchRatingsForMovies(
+        response.data.streamingRecommendations || []
+      );
+
+      // Transform each recommendation category to match the expected Movie format
       const transformRecommendations = (movies: any[]) => movies.map(toMovie);
 
       return {
-        locationRecommendations: transformRecommendations(
-          response.data.locationRecommendations || []
-        ),
-        basicRecommendations: transformRecommendations(
-          response.data.basicRecommendations || []
-        ),
-        streamingRecommendations: transformRecommendations(
-          response.data.streamingRecommendations || []
-        ),
+        locationRecommendations: transformRecommendations(locationRecommendations),
+        basicRecommendations: transformRecommendations(basicRecommendations),
+        streamingRecommendations: transformRecommendations(streamingRecommendations),
       };
     } catch (error) {
       console.error("Error fetching user recommendations:", error);
@@ -159,20 +223,71 @@ export const movieService = {
   getRecommendations: async (movieId: string) => {
     const response = await api.get(`/movies/${movieId}/recommendations`);
 
-    // Transform the response to match the expected Movie format
-    const recommendedMovies = response.data.map((movie: any) => ({
-      movieId: movie.showId,
-      title: movie.title,
-      genre: movie.genre,
-      description: movie.description,
-      imageUrl: movie.imageUrl
-        ? encodeURI(movie.imageUrl)
-        : `/images/${movie.showId}.jpg`,
-      year: movie.releaseYear,
-      director: movie.director,
-      averageRating: 0, // We don't have ratings for recommendations yet
-      country: movie.country,
-    }));
+    // Transform the response to match the expected Movie format and fetch ratings
+    const recommendedMovies = await Promise.all(
+      response.data.map(async (movie: any) => {
+        try {
+          // Fetch ratings for this movie
+          const ratingsResponse = await api.get(
+            `/movierating/movie/${movie.showId}`
+          );
+          const ratings = ratingsResponse.data;
+
+          // Store ratings in the global store
+          window.movieRatings[movie.showId] = ratings;
+
+          // Calculate average rating
+          let avgRating = 0;
+          if (ratings.length > 0) {
+            const sum = ratings.reduce(
+              (total: number, rating: MovieRatingItem) => total + rating.rating,
+              0
+            );
+            avgRating = sum / ratings.length;
+          }
+
+          return {
+            movieId: movie.showId,
+            title: movie.title,
+            genre: movie.genre,
+            description: movie.description,
+            imageUrl: movie.imageUrl
+              ? encodeURI(movie.imageUrl)
+              : `/images/${movie.showId}.jpg`,
+            year: movie.releaseYear,
+            director: movie.director,
+            averageRating: avgRating,
+            country: movie.country,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            rating: movie.rating || "",
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching ratings for recommended movie ${movie.showId}:`,
+            error
+          );
+          return {
+            movieId: movie.showId,
+            title: movie.title,
+            genre: movie.genre,
+            description: movie.description,
+            imageUrl: movie.imageUrl
+              ? encodeURI(movie.imageUrl)
+              : `/images/${movie.showId}.jpg`,
+            year: movie.releaseYear,
+            director: movie.director,
+            averageRating: 0, // Default to 0 if ratings fetch fails
+            country: movie.country,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            rating: movie.rating || "",
+          };
+        }
+      })
+    );
 
     return recommendedMovies;
   },
@@ -224,17 +339,21 @@ export const movieService = {
           }
 
           return {
-            movieId: movie.showId,
+            showId: movie.showId,
             title: movie.title,
             genre: movie.genre,
             description: movie.description,
             imageUrl: movie.imageUrl
               ? encodeURI(movie.imageUrl)
               : `/images/${movie.showId}.jpg`, // Use imageUrl from DB if available, ensuring it's properly encoded
-            year: movie.releaseYear,
+            releaseYear: movie.releaseYear,
             director: movie.director,
             averageRating: avgRating,
             country: movie.country,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            rating: movie.rating || "",
           };
         } catch (error) {
           console.error(
@@ -242,14 +361,19 @@ export const movieService = {
             error
           );
           return {
-            movieId: movie.showId,
+            showId: movie.showId,
             title: movie.title,
             genre: movie.genre,
             description: movie.description,
             imageUrl: `/images/${movie.showId}.jpg`,
-            year: movie.releaseYear,
+            releaseYear: movie.releaseYear,
             director: movie.director,
             averageRating: 0,
+            type: movie.type || "Movie",
+            cast: movie.cast || "",
+            duration: movie.duration || "",
+            country: movie.country || "",
+            rating: movie.rating || "",
           };
         }
       })
@@ -267,6 +391,7 @@ export const movieService = {
   getMovie: async (id: string) => {
     const response = await api.get(`/movietitle/${id}`);
     const movie = response.data;
+    console.log("Raw response from backend:", response.data); // Debug log for raw response
 
     try {
       // Fetch ratings for this movie
@@ -291,34 +416,70 @@ export const movieService = {
         avgRating = 0;
       }
 
-      // Transform MovieTitle to match the expected Movie format
+      // Determine the genre based on the genre flags
+      let genre = movie.Genre || movie.genre || "";
+      
+      // If genre is not directly available, determine it from the genre flags
+      if (!genre) {
+        // Check each genre flag and use the first one that is set to 1 or true
+        if (movie.Action === 1 || movie.Action === true) genre = "Action";
+        else if (movie.Adventure === 1 || movie.Adventure === true) genre = "Adventure";
+        else if (movie.Comedies === 1 || movie.Comedies === true) genre = "Comedy";
+        else if (movie.Dramas === 1 || movie.Dramas === true) genre = "Drama";
+        else if (movie.HorrorMovies === 1 || movie.HorrorMovies === true) genre = "Horror";
+        else if (movie.Thrillers === 1 || movie.Thrillers === true) genre = "Thriller";
+        // Add more genre mappings as needed
+      }
+      
+      console.log("Movie data from backend:", movie);
+      console.log("Determined genre value:", genre);
+     
       return {
         movieId: movie.showId,
+        showId: movie.showId,
         title: movie.title,
-        genre: movie.genre,
+        genre: genre, // Use the determined genre
         description: movie.description,
         imageUrl: movie.imageUrl
           ? encodeURI(movie.imageUrl)
           : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
+        releaseYear: movie.releaseYear,
         director: movie.director,
         averageRating: avgRating,
+        type: movie.type || "Movie",
+        cast: movie.cast || "",
+        duration: movie.duration || "",
+        country: movie.country || "",
+        rating: movie.rating || "",
       };
     } catch (error) {
       console.error(`Error fetching ratings for movie ${movie.showId}:`, error);
 
       // Transform MovieTitle to match the expected Movie format without ratings
+      // Check if genre is available with capital G (from C# backend) or lowercase g
+      const genre = movie.Genre || movie.genre || "";
+      console.log("Movie data from backend (error case):", movie);
+      console.log("Genre value (error case):", genre);
+
       return {
         movieId: movie.showId,
+        showId: movie.showId,
         title: movie.title,
-        genre: movie.genre,
+        genre: genre, // Use the genre value we extracted
         description: movie.description,
         imageUrl: movie.imageUrl
           ? encodeURI(movie.imageUrl)
           : `/images/${movie.showId}.jpg`,
         year: movie.releaseYear,
+        releaseYear: movie.releaseYear,
         director: movie.director,
         averageRating: 0,
+        type: movie.type || "Movie",
+        cast: movie.cast || "",
+        duration: movie.duration || "",
+        country: movie.country || "",
+        rating: movie.rating || "",
       };
     }
   },
@@ -351,7 +512,7 @@ export const movieService = {
       cast: movie.cast || "",
       country: movie.country || "",
       releaseYear: movie.releaseYear,
-      rating: "",
+      rating: movie.rating || "",
       duration: movie.duration || "",
       description: movie.description || "",
       // Initialize all genre fields to 0
@@ -395,54 +556,115 @@ export const movieService = {
   },
 
   updateMovie: async (id: string, movie: any) => {
-    // Get the existing movie to preserve genre values
-    const existingMovie = await api.get(`/movietitle/${id}`);
-    const existingData = existingMovie.data;
+    try {
+      // Get the existing movie to preserve genre values
+      const existingMovie = await api.get(`/movietitle/${id}`);
+      const existingData = existingMovie.data;
 
-    // Update only the fields that are provided
-    const updatedMovie = {
-      ...existingData,
-      title: movie.title || existingData.title,
-      director: movie.director || existingData.director,
-      releaseYear: movie.year || existingData.releaseYear,
-      description: movie.description || existingData.description,
-    };
+      // Update only the fields that are provided
+      const updatedMovie = {
+        ...existingData,
+        title: movie.title || existingData.title,
+        director: movie.director || existingData.director,
+        releaseYear: movie.releaseYear || existingData.releaseYear,
+        description: movie.description || existingData.description,
+        cast: movie.cast || existingData.cast,
+        duration: movie.duration || existingData.duration,
+        country: movie.country || existingData.country,
+        imageUrl: movie.imageUrl || existingData.imageUrl,
+        type: movie.type || existingData.type,
+        rating: movie.rating || existingData.rating,
+      };
 
-    // Update genre if provided
-    if (movie.genre) {
-      // Reset all genre fields
-      updatedMovie.Action = 0;
-      updatedMovie.Adventure = 0;
-      updatedMovie.Comedies = 0;
-      updatedMovie.Dramas = 0;
-      updatedMovie.HorrorMovies = 0;
-      updatedMovie.Thrillers = 0;
+      // Update genre if provided
+      if (movie.genre) {
+        // Reset all genre fields
+        // Get all genre fields from the existingData
+        const genreFields = Object.keys(existingData).filter(
+          (key) =>
+            typeof existingData[key] === "number" &&
+            key !== "releaseYear" &&
+            key !== "showId"
+        );
 
-      // Set the appropriate genre field
-      switch (movie.genre) {
-        case "Action":
+        // Reset all genre fields to 0
+        genreFields.forEach((field) => {
+          updatedMovie[field] = 0;
+        });
+
+        // Set the appropriate genre field based on the genre map
+        const genreMap: Record<string, string> = {
+          Action: "Action",
+          Adventure: "Adventure",
+          Comedy: "Comedies",
+          Drama: "Dramas",
+          Horror: "HorrorMovies",
+          Thriller: "Thrillers",
+          "Anime Series International TV Shows":
+            "AnimeSeriesInternationalTVShows",
+          "British TV Shows Docuseries International TV Shows":
+            "BritishTVShowsDocuseriesInternationalTVShows",
+          Children: "Children",
+          "Comedy Dramas International Movies":
+            "ComediesDramasInternationalMovies",
+          "Comedy Romantic Movies": "ComediesRomanticMovies",
+          "Crime TV Shows Docuseries": "CrimeTVShowsDocuseries",
+          Documentaries: "Documentaries",
+          "Documentaries International Movies":
+            "DocumentariesInternationalMovies",
+          Docuseries: "Docuseries",
+          "Drama International Movies": "DramasInternationalMovies",
+          "Drama Romantic Movies": "DramasRomanticMovies",
+          "Family Movies": "FamilyMovies",
+          Fantasy: "Fantasy",
+          "International Movies Thrillers": "InternationalMoviesThrillers",
+          "International TV Shows Romantic TV Shows TV Dramas":
+            "InternationalTVShowsRomanticTVShowsTVDramas",
+          "Kids' TV": "KidsTV",
+          "Language TV Shows": "LanguageTVShows",
+          Musicals: "Musicals",
+          "Nature TV": "NatureTV",
+          "Reality TV": "RealityTV",
+          Spirituality: "Spirituality",
+          "TV Action": "TVAction",
+          "TV Comedies": "TVComedies",
+          "TV Dramas": "TVDramas",
+          "Talk Shows TV Comedies": "TalkShowsTVComedies",
+        };
+
+        // Try to find the genre in the map (case-insensitive)
+        let dbField = genreMap[movie.genre];
+
+        // If not found directly, try case-insensitive search
+        if (!dbField) {
+          const lowerCaseGenre = movie.genre.toLowerCase();
+          for (const [key, value] of Object.entries(genreMap)) {
+            if (key.toLowerCase() === lowerCaseGenre) {
+              dbField = value;
+              break;
+            }
+          }
+        }
+
+        if (dbField) {
+          console.log(
+            `Setting genre field ${dbField} to 1 for genre ${movie.genre}`
+          );
+          updatedMovie[dbField] = 1;
+        } else {
+          console.warn(`Unknown genre: ${movie.genre}`);
+          // Default to Action if genre not found
           updatedMovie.Action = 1;
-          break;
-        case "Adventure":
-          updatedMovie.Adventure = 1;
-          break;
-        case "Comedy":
-          updatedMovie.Comedies = 1;
-          break;
-        case "Drama":
-          updatedMovie.Dramas = 1;
-          break;
-        case "Horror":
-          updatedMovie.HorrorMovies = 1;
-          break;
-        case "Thriller":
-          updatedMovie.Thrillers = 1;
-          break;
+        }
       }
-    }
 
-    const response = await api.put(`/movietitle/${id}`, updatedMovie);
-    return response.data;
+      console.log("Sending updated movie to server:", updatedMovie);
+      const response = await api.put(`/movietitle/${id}`, updatedMovie);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating movie:", error);
+      throw error;
+    }
   },
 
   deleteMovie: async (id: string) => {
@@ -607,7 +829,7 @@ export const updateMovie = async (
   updateMovie: Movie
 ): Promise<Movie> => {
   try {
-    const response = await fetch(`${baseUrl}/UpdateBook/${showId}`, {
+    const response = await fetch(`${baseUrl}/movietitle/${showId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

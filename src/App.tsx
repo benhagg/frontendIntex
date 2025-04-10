@@ -10,11 +10,13 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Movies from "./pages/Movies";
 import MovieDetail from "./pages/MovieDetail";
+import TrendingNow from "./pages/TrendingNow";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import CookieConsent from "react-cookie-consent";
 import UserReviewsWrapper from "./pages/UserReview";
 import UserReviews from "./components/myreviews";
+import UserProfile from "./pages/EditProfile";
 
 function App() {
   return (
@@ -32,6 +34,8 @@ function App() {
             <Route path="/movies" element={<Movies />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
             <Route path="/reviews" element={<UserReviews userId={0} />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/trending" element={<TrendingNow />} />
           </Route>
 
           {/* Admin routes */}
