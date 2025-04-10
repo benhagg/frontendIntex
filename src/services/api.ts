@@ -147,9 +147,9 @@ export const authService = {
 
 // Movie services (using the new MovieTitle table)
 export const movieService = {
-  getUserRecommendations: async (userId: string) => {
+  getUserRecommendations: async (userId: string, kidsMode: boolean = false) => {
     try {
-      const response = await api.get(`/movies/user-recommendations/${userId}`);
+      const response = await api.get(`/movies/user-recommendations/${userId}?kidsMode=${kidsMode}`);
 
       // Fetch ratings for each movie in each recommendation category
       const fetchRatingsForMovies = async (movies: any[]) => {
@@ -220,8 +220,8 @@ export const movieService = {
     }
   },
 
-  getRecommendations: async (movieId: string) => {
-    const response = await api.get(`/movies/${movieId}/recommendations`);
+  getRecommendations: async (movieId: string, kidsMode: boolean = false) => {
+    const response = await api.get(`/movies/${movieId}/recommendations?kidsMode=${kidsMode}`);
 
     // Transform the response to match the expected Movie format and fetch ratings
     const recommendedMovies = await Promise.all(
@@ -295,11 +295,13 @@ export const movieService = {
     page = 1,
     pageSize = 10,
     genre?: string,
-    search?: string
+    search?: string,
+    kidsMode?: boolean
   ) => {
     let url = `/movietitle?page=${page}&pageSize=${pageSize}`;
     if (genre) url += `&genre=${genre}`;
     if (search) url += `&search=${search}`;
+    if (kidsMode !== undefined) url += `&kidsMode=${kidsMode}`;
 
     const response = await api.get(url);
 
@@ -388,8 +390,10 @@ export const movieService = {
     };
   },
 
-  getMovie: async (id: string) => {
-    const response = await api.get(`/movietitle/${id}`);
+  getMovie: async (id: string, kidsMode?: boolean) => {
+    let url = `/movietitle/${id}`;
+    if (kidsMode !== undefined) url += `?kidsMode=${kidsMode}`;
+    const response = await api.get(url);
     const movie = response.data;
     console.log("Raw response from backend:", response.data); // Debug log for raw response
 
