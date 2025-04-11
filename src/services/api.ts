@@ -7,11 +7,9 @@ import { UserInfo } from "../types/userInfo";
 
 // Create axios instance with base URL
 // pulls from .env file (for development) or uses an Azure environment variable (for production)
-const environment = process.env.NODE_ENV;
+// const environment = process.env.NODE_ENV;
 const baseUrl =
-  environment === "development"
-    ? "http://localhost:5232/api"
-    : "https://intexbackend-a6fvcvg6cha4hwcx.centralus-01.azurewebsites.net/api";
+  "https://intexbackend2-e0b4hke9bpgdhtey.eastus-01.azurewebsites.net/api";
 
 const api = axios.create({
   baseURL: baseUrl,
@@ -102,13 +100,13 @@ export const authService = {
   }> => {
     const response = await api.post("/auth/register", registerData);
     const { token, user } = response.data;
-    
+
     // Store token and user info if they are returned
     if (token && user) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
     }
-    
+
     return response.data;
   },
 
@@ -165,7 +163,9 @@ export const authService = {
 export const movieService = {
   getUserRecommendations: async (userId: string, kidsMode: boolean = false) => {
     try {
-      const response = await api.get(`/movies/user-recommendations/${userId}?kidsMode=${kidsMode}`);
+      const response = await api.get(
+        `/movies/user-recommendations/${userId}?kidsMode=${kidsMode}`
+      );
 
       // Fetch ratings for each movie in each recommendation category
       const fetchRatingsForMovies = async (movies: any[]) => {
@@ -185,7 +185,8 @@ export const movieService = {
               let avgRating = 0;
               if (ratings.length > 0) {
                 const sum = ratings.reduce(
-                  (total: number, rating: MovieRatingItem) => total + rating.rating,
+                  (total: number, rating: MovieRatingItem) =>
+                    total + rating.rating,
                   0
                 );
                 avgRating = sum / ratings.length;
@@ -194,7 +195,7 @@ export const movieService = {
               // Return the movie with the average rating
               return {
                 ...movie,
-                averageRating: avgRating
+                averageRating: avgRating,
               };
             } catch (error) {
               console.error(
@@ -222,9 +223,13 @@ export const movieService = {
       const transformRecommendations = (movies: any[]) => movies.map(toMovie);
 
       return {
-        locationRecommendations: transformRecommendations(locationRecommendations),
+        locationRecommendations: transformRecommendations(
+          locationRecommendations
+        ),
         basicRecommendations: transformRecommendations(basicRecommendations),
-        streamingRecommendations: transformRecommendations(streamingRecommendations),
+        streamingRecommendations: transformRecommendations(
+          streamingRecommendations
+        ),
       };
     } catch (error) {
       console.error("Error fetching user recommendations:", error);
@@ -237,7 +242,9 @@ export const movieService = {
   },
 
   getRecommendations: async (movieId: string, kidsMode: boolean = false) => {
-    const response = await api.get(`/movies/${movieId}/recommendations?kidsMode=${kidsMode}`);
+    const response = await api.get(
+      `/movies/${movieId}/recommendations?kidsMode=${kidsMode}`
+    );
 
     // Transform the response to match the expected Movie format and fetch ratings
     const recommendedMovies = await Promise.all(
@@ -438,22 +445,26 @@ export const movieService = {
 
       // Determine the genre based on the genre flags
       let genre = movie.Genre || movie.genre || "";
-      
+
       // If genre is not directly available, determine it from the genre flags
       if (!genre) {
         // Check each genre flag and use the first one that is set to 1 or true
         if (movie.Action === 1 || movie.Action === true) genre = "Action";
-        else if (movie.Adventure === 1 || movie.Adventure === true) genre = "Adventure";
-        else if (movie.Comedies === 1 || movie.Comedies === true) genre = "Comedy";
+        else if (movie.Adventure === 1 || movie.Adventure === true)
+          genre = "Adventure";
+        else if (movie.Comedies === 1 || movie.Comedies === true)
+          genre = "Comedy";
         else if (movie.Dramas === 1 || movie.Dramas === true) genre = "Drama";
-        else if (movie.HorrorMovies === 1 || movie.HorrorMovies === true) genre = "Horror";
-        else if (movie.Thrillers === 1 || movie.Thrillers === true) genre = "Thriller";
+        else if (movie.HorrorMovies === 1 || movie.HorrorMovies === true)
+          genre = "Horror";
+        else if (movie.Thrillers === 1 || movie.Thrillers === true)
+          genre = "Thriller";
         // Add more genre mappings as needed
       }
-      
+
       console.log("Movie data from backend:", movie);
       console.log("Determined genre value:", genre);
-     
+
       return {
         movieId: movie.showId,
         showId: movie.showId,
