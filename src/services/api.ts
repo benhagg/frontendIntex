@@ -91,8 +91,24 @@ export const authService = {
     state?: string;
     zip?: string;
     services?: string[];
-  }) => {
+  }): Promise<{
+    token?: string;
+    user?: {
+      id: string;
+      email: string;
+      roles: string[];
+    };
+    message?: string;
+  }> => {
     const response = await api.post("/auth/register", registerData);
+    const { token, user } = response.data;
+    
+    // Store token and user info if they are returned
+    if (token && user) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+    
     return response.data;
   },
 
