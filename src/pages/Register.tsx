@@ -97,9 +97,17 @@ const Register: React.FC = () => {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      await registerUser(data);
-      toast.success("Registration successful! Please log in.");
-      navigate("/login");
+      const response = await registerUser(data);
+      
+      // If the response contains a token and user, the user is already authenticated
+      if (response && response.token && response.user) {
+        toast.success("Registration successful! Redirecting to movies...");
+        navigate("/movies");
+      } else {
+        // Fallback to the old behavior if the backend doesn't return token and user
+        toast.success("Registration successful! Please log in.");
+        navigate("/login");
+      }
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||

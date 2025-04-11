@@ -25,6 +25,12 @@ interface RegisterData {
   services?: string[];
 }
 
+interface RegisterResponse {
+  token?: string;
+  user?: User;
+  message?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -34,7 +40,7 @@ interface AuthContextType {
   kidsModeTimestamp: number;
   toggleKidsMode: () => void;
   login: (email: string, password: string) => Promise<void>;
-  register: (registerData: RegisterData) => Promise<void>;
+  register: (registerData: RegisterData) => Promise<RegisterResponse>;
   logout: () => void;
 }
 
@@ -155,7 +161,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (registerData: RegisterData) => {
     try {
-      await authService.register(registerData);
+      const response = await authService.register(registerData);
+      
+      // If the backend returns a token and user, set the authentication state
+      if (response.token && response.user) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+        setIsAdmin(response.user.roles.includes('Admin'));
+        
+        // Fetch additional user info
+        try {
+          const userInfo = await authService.getUserInfo();
+          if (userInfo) {
+            setUser(prevUser => ({
+              ...prevUser!,
+              name: userInfo.name,
+              age: userInfo.age,
+              enforceKidsMode: userInfo.enforceKidsMode
+            }));
+            
+            // Set enforceKidsMode state based on user info
+            const isEnforced = userInfo.enforceKidsMode || false;
+            setEnforceKidsMode(isEnforced);
+            
+            // If kids mode is enforced, make sure kidsMode is also set to true
+            if (isEnforced) {
+              setKidsMode(true);
+              localStorage.setItem("kidsMode", "true");
+            }
+          }
+        } catch (infoError) {
+          console.error('Error fetching user info:', infoError);
+        }
+      }
+      
+      return response;
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
