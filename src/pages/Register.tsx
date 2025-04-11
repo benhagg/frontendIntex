@@ -82,6 +82,15 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // State to track password requirements
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false
+  });
 
   const {
     register,
@@ -93,6 +102,27 @@ const Register: React.FC = () => {
   });
 
   const password = watch("password", "");
+  
+  // Update password requirements whenever password changes
+  React.useEffect(() => {
+    if (password) {
+      setPasswordRequirements({
+        length: password.length >= 15,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+      });
+    } else {
+      setPasswordRequirements({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false
+      });
+    }
+  }, [password]);
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
@@ -317,10 +347,28 @@ const Register: React.FC = () => {
                 type={showPassword ? "text" : "password"}
               {...register("password", {
                 required: "Password is required",
-                minLength: {
-                  value: 15,
-                  message: "Password must be at least 15 characters",
-                },
+                validate: (value) => {
+                  const missingRequirements = [];
+                  
+                  if (value.length < 15) {
+                    missingRequirements.push("at least 15 characters");
+                  }
+                  if (!/[A-Z]/.test(value)) {
+                    missingRequirements.push("a capital letter");
+                  }
+                  if (!/[a-z]/.test(value)) {
+                    missingRequirements.push("a lowercase letter");
+                  }
+                  if (!/[0-9]/.test(value)) {
+                    missingRequirements.push("a number");
+                  }
+                  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) {
+                    missingRequirements.push("a special character");
+                  }
+                  
+                  return missingRequirements.length === 0 || 
+                    `Your password is missing: ${missingRequirements.join(", ")}`;
+                }
               })}
                 className="w-full border rounded p-2 pr-10 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
               />
@@ -341,6 +389,27 @@ const Register: React.FC = () => {
                 {errors.password.message}
               </p>
             )}
+            
+            <div className="mt-2 text-xs h-32"> {/* Fixed height container */}
+              <p className="font-medium dark:text-white mb-1">Password requirements:</p>
+              <ul className="space-y-1 pl-5 list-disc dark:text-gray-300">
+                <li className={passwordRequirements.length ? "text-green-600 dark:text-green-400" : ""}>
+                  At least 15 characters
+                </li>
+                <li className={passwordRequirements.uppercase ? "text-green-600 dark:text-green-400" : ""}>
+                  At least one capital letter
+                </li>
+                <li className={passwordRequirements.lowercase ? "text-green-600 dark:text-green-400" : ""}>
+                  At least one lowercase letter
+                </li>
+                <li className={passwordRequirements.number ? "text-green-600 dark:text-green-400" : ""}>
+                  At least one number
+                </li>
+                <li className={passwordRequirements.special ? "text-green-600 dark:text-green-400" : ""}>
+                  At least one special character
+                </li>
+              </ul>
+            </div>
 
             <label className="block text-sm font-medium mb-1 mt-4 dark:text-white">
               Confirm Password:
